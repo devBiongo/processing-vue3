@@ -1,0 +1,88 @@
+
+html,
+body,
+#app, #root {
+  height: 100%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  outline: none;
+  text-decoration: none;
+}
+
+
+
+// 数据列表 样式
+.table-alert {
+  margin-bottom: 16px;
+}
+// 数据列表 操作
+.table-operator {
+  margin-bottom: 18px;
+
+  button {
+    margin-right: 8px;
+  }
+}
+// 数据列表 搜索条件
+.table-page-search-wrapper {
+  .ant-form-inline {
+    .ant-form-item {
+      display: flex;
+      margin-bottom: 24px;
+      margin-right: 0;
+
+      .ant-form-item-control-wrapper {
+        flex: 1 1;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      > .ant-form-item-label {
+        line-height: 32px;
+        padding-right: 8px;
+        width: auto;
+      }
+      .ant-form-item-control {
+        height: 32px;
+        line-height: 32px;
+      }
+    }
+  }
+
+  .table-page-search-submitButtons {
+    display: block;
+    margin-bottom: 24px;
+    white-space: nowrap;
+  }
+}
+
+
+
+
+
+/* 谷歌美化滚动条 */
+*::-webkit-scrollbar {
+	width: 6px;
+	// height: 6px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+	background: f0f2f5;
+	border-radius: 2px;
+}
+*::-webkit-scrollbar-thumb {
+	background: #c8d2e0;
+	border-radius: 10px;
+}
+*::-webkit-scrollbar-thumb:hover {
+		background: #c8d2e0;
+}
+*::-webkit-scrollbar-corner {
+	background: #c8d2e0;
+}
+
+
