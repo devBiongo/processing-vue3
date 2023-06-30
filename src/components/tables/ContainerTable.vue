@@ -127,18 +127,23 @@ export default defineComponent({
                     </a-form-item>
                   </a-col>
                   <a-col :span="6">
-                    <a-form-item label="免税運賃">
-                      <a-input v-model:value="modalFormState.dutyFreeFare" />
+                    <a-form-item label="免税運賃(JPY)" >
+                      <a-input-number v-model:value="modalFormState.dutyFreeFare" style="width: 100%;"/>
                     </a-form-item>
                   </a-col>
                   <a-col :span="6">
-                    <a-form-item label="課税運賃">
-                      <a-input v-model:value="modalFormState.taxableFare" />
+                    <a-form-item label="課税運賃(JPY)" > 
+                      <a-input-number v-model:value="modalFormState.taxableFare" style="width: 100%;"/>
                     </a-form-item>
                   </a-col>
                   <a-col :span="6">
-                    <a-form-item label="通行料">
-                      <a-input v-model:value="modalFormState.toll" />
+                    <a-form-item label="通行料(JPY)" >
+                      <a-input-number v-model:value="modalFormState.toll" style="width: 100%;"/>
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="6">
+                    <a-form-item label="売上金額(JPY)">
+                      <a-input-number v-model:value="modalFormState.uriagekinngaku" style="width: 100%;"/>
                     </a-form-item>
                   </a-col>
                   <a-col :span="24">

@@ -116,9 +116,7 @@ export default defineComponent({
           </a-col>
           <a-col :span="8" style="text-align: center">
             <a-typography-title :level="2"
-              >船積確認書管理画面({{
-                pageState.formState.invoiceNo
-              }})</a-typography-title
+              >船積確認書管理画面<span style="color: green;">(既存)</span></a-typography-title
             >
           </a-col>
           <a-col :span="8">
@@ -467,6 +465,24 @@ export default defineComponent({
                 }
               "
               >更新</a-button
+            >
+          </a-affix>
+        </a-col>
+        <a-col style="margin-left: 20px;">
+          <a-affix :offset-bottom="30">
+            <a-button
+              type="primary"
+              size="large"
+              @click="
+                () => {
+                  http
+                    .get('/file/pdf/download')
+                    .then((data: any) => {
+                      
+                    });
+                }
+              "
+              >出力</a-button
             >
           </a-affix>
         </a-col>

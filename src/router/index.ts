@@ -8,11 +8,6 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/LoginView.vue"),
   },
   {
-    path: "/cargoManifest",
-    name: "cargoManifest",
-    component: () => import("@/views/protected/business/CargoManifest.vue"),
-  },
-  {
     path: "/cargoManifestUpdate",
     name: "cargoManifestUpdate",
     component: () =>
@@ -52,6 +47,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "manage",
         name: "manage",
         component: () => import("@/views/protected/system/SysUserView.vue"),
+      },
+      {
+        path: "/cargoManifest",
+        name: "cargoManifest",
+        component: () => import("@/views/protected/business/CargoManifest.vue"),
       },
     ],
   },

@@ -76,6 +76,7 @@ export default defineComponent({
                       <a-date-picker
                         v-model:value="modalFormState.date"
                         style="width: 100%"
+                        show-time
                       />
                     </a-form-item>
                   </a-col>
@@ -85,11 +86,7 @@ export default defineComponent({
                     </a-form-item>
                   </a-col>
 
-                  <a-col :span="12">
-                    <a-form-item label="住所">
-                      <a-input v-model:value="modalFormState.address" />
-                    </a-form-item>
-                  </a-col>
+                  
 
                   <a-col :span="12">
                     <a-form-item label="担当者">
@@ -102,7 +99,14 @@ export default defineComponent({
                       <a-input v-model:value="modalFormState.teleNum" />
                     </a-form-item>
                   </a-col>
-                  
+                  <a-col :span="24">
+                    <a-form-item label="住所">
+                      <a-textarea
+                        :rows="4"
+                        v-model:value="modalFormState.address"
+                      />
+                    </a-form-item>
+                  </a-col>
                   <a-col :span="24">
                     <a-form-item label="備考">
                       <a-textarea

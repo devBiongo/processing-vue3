@@ -22,7 +22,7 @@ export default defineComponent({
       pageLoading: true,
       btnLoading: false,
       tableMode: 1,
-      formState: {},
+      formState: {blCount:'ORIGINAL ONE(1)', blCopy: 'ONE(1)'},
       assignmentData: [{ key: nanoid() }],
       containerData: [{ key: nanoid() }],
       consignData: [{ key: nanoid() }],
@@ -90,7 +90,7 @@ export default defineComponent({
           </a-col>
           <a-col :span="8" style="text-align: center">
             <a-typography-title :level="2"
-              >船積確認書管理画面</a-typography-title
+              >船積確認書管理画面<span style="color: green;">(新規)</span></a-typography-title
             >
           </a-col>
           <a-col :span="8">
@@ -151,7 +151,8 @@ export default defineComponent({
               style="width: 100%"
             >
               <a-select-option value="自社">自社</a-select-option>
-              <a-select-option value="他社">他社</a-select-option>
+              <a-select-option value="委託">委託</a-select-option>
+              <a-select-option value="受託">受託</a-select-option>
             </a-select>
           </a-form-item>
           <a-form-item label="BOOKING NO">
@@ -163,7 +164,6 @@ export default defineComponent({
             <a-date-picker
               v-model:value="pageState.formState.bookingDate"
               style="width: 100%"
-              show-time
             />
           </a-form-item>
           <a-form-item label="請求書番号(自社)">
@@ -173,11 +173,15 @@ export default defineComponent({
             <a-input v-model:value="pageState.formState.invoiceNoOther" />
           </a-form-item>
           <a-form-item label="FREIGHT">
-            <a-input-number
+            <a-select
               v-model:value="pageState.formState.freight"
-              prefix="$"
               style="width: 100%"
-            />
+            >
+              <a-select-option value="PREPAID AS ARRANGGED"
+                >PREPAID AS ARRANGED</a-select-option
+              >
+              <a-select-option value="COLLECT">COLLECT</a-select-option>
+            </a-select>
           </a-form-item>
         </a-col>
         <a-col :span="24" style="padding: 0px 55px">
@@ -206,17 +210,18 @@ export default defineComponent({
             </a-select>
           </a-form-item>
           <a-form-item label="VESSEL NO">
-            <a-select
-              v-model:value="pageState.formState.vesselNo"
-              style="width: 100%"
-            >
-              <a-select-option value="船号1">船号1</a-select-option>
-              <a-select-option value="船号2">船号2</a-select-option>
-              <a-select-option value="船号3">船号3</a-select-option>
-            </a-select>
+            <a-input v-model:value="pageState.formState.vesselNo" />
           </a-form-item>
           <a-form-item label="PLACE OF RECEIPT">
-            <a-input v-model:value="pageState.formState.placeOfReceipt" />
+            <a-select
+              v-model:value="pageState.formState.placeOfReceipt"
+              style="width: 100%"
+            >
+              <a-select-option value="东京港">东京港 CY </a-select-option>
+              <a-select-option value="大阪港">大阪港 CY</a-select-option>
+              <a-select-option value="名古屋港">名古屋港 CY</a-select-option>
+              <a-select-option value="横滨港">横滨港 CY</a-select-option>
+            </a-select>
           </a-form-item>
           <a-form-item label="PORT OF LOADING">
             <a-select
@@ -230,13 +235,7 @@ export default defineComponent({
             </a-select>
           </a-form-item>
           <a-form-item label="PORT OF DISCHARGE">
-            <a-select
-              v-model:value="pageState.formState.portOfDischarge"
-              style="width: 100%"
-            >
-              <a-select-option value="东京港">福建港</a-select-option>
-              <a-select-option value="大阪港">上海港</a-select-option>
-            </a-select>
+            <a-input v-model:value="pageState.formState.portOfDischarge" />
           </a-form-item>
           <a-form-item label="PLACE OF DELIVERY">
             <a-input v-model:value="pageState.formState.placeOfDelivery" />
@@ -293,35 +292,41 @@ export default defineComponent({
             <a-date-picker
               v-model:value="pageState.formState.issuedAt"
               style="width: 100%"
-              show-time
             />
           </a-form-item>
           <a-form-item label="NOS.OF B/L">
-            <a-input-number
+            <a-select
               v-model:value="pageState.formState.blCount"
               style="width: 100%"
-            />
+            >
+              <a-select-option value="ORIGINAL ONE(1)">ORIGINAL ONE(1)</a-select-option>
+            </a-select>
           </a-form-item>
           <a-form-item label="BL COPY">
             <a-select
               v-model:value="pageState.formState.blCopy"
               style="width: 100%"
             >
-              <a-select-option value="1">1</a-select-option>
+              <a-select-option value="ONE(1)">ONE(1)</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
         <a-col :span="10">
           <a-form-item label="BL MARK">
-            <a-input v-model:value="pageState.formState.blMark" />
+            <a-select
+              v-model:value="pageState.formState.blMark"
+              style="width: 100%"
+            >
+              <a-select-option value="NO MARK">NO MARK</a-select-option>
+            </a-select>
           </a-form-item>
           <a-form-item label="PAYMENT TYPE">
             <a-select
               v-model:value="pageState.formState.paymentType"
               style="width: 100%"
             >
-              <a-select-option value="現金">現金</a-select-option>
-              <a-select-option value="振り込む">振り込む</a-select-option>
+              <a-select-option value="PREPAID AT COLLECT">PREPAID AT COLLECT</a-select-option>
+              <a-select-option value="COLLECT">COLLECT</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
@@ -334,9 +339,9 @@ export default defineComponent({
           </a-form-item>
         </a-col>
       </a-row>
-      <!-- 運営情報 -->
+      <!-- 運輸情報 -->
       <a-typography-title :level="3" style="margin: 30px 0px">
-        運営情報
+        運輸情報
       </a-typography-title>
       <a-row class="box">
         <a-col :span="10">
@@ -448,11 +453,12 @@ export default defineComponent({
   min-height: 500px;
   padding-top: 50px;
   padding-bottom: 100px;
-  background-color: #fff;
+
   .page-title {
     text-align: center;
   }
   .form {
+    background-color: #fff;
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
     min-height: 1500px;
     padding: 35px 20px;

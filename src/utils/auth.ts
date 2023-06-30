@@ -7,7 +7,7 @@ export function getToken() {
 }
 
 export function setToken(token: string) {
-  return setItem(TokenKey, token, 10);
+  return setItem(TokenKey, token, 1);
 }
 
 export function removeToken() {
