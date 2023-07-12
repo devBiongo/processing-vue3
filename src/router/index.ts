@@ -1,22 +1,13 @@
+
 import { getToken } from "@/utils/auth";
+import { useStore } from '@/pinia'
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/login",
-    name: "login",
+    name: "ログイン",
     component: () => import("@/views/LoginView.vue"),
-  },
-  {
-    path: "/cargoManifestUpdate",
-    name: "cargoManifestUpdate",
-    component: () =>
-      import("@/views/protected/business/CargoManifestUpdate.vue"),
-  },
-  {
-    path: "/success",
-    name: "success",
-    component: () => import("@/views/result/SuccessView.vue"),
   },
   {
     path: "/user",
@@ -25,33 +16,39 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: "home",
-        name: "home",
+        name: "ホームページ",
         component: () => import("@/views/protected/home/HomeView.vue"),
       },
       {
         path: "newTask",
-        name: "newTask",
+        name: "新規タスク",
         component: () => import("@/views/protected/NewTaskList.vue"),
       },
       {
         path: "taskList",
-        name: "taskList",
+        name: "タスク一覧",
         component: () => import("@/views/protected/business/CargoList.vue"),
       },
       {
         path: "task",
-        name: "task1",
+        name: "タスク（廃棄）",
         component: () => import("@/views/protected/business/TaskViewOld.vue"),
       },
       {
         path: "manage",
-        name: "manage",
+        name: "ユーザー管理",
         component: () => import("@/views/protected/system/SysUserView.vue"),
       },
       {
-        path: "/cargoManifest",
-        name: "cargoManifest",
+        path: "cargoManifest",
+        name: "船積確認書起票",
         component: () => import("@/views/protected/business/CargoManifest.vue"),
+      },
+      {
+        path: "cargoManifestUpdate",
+        name: "船積確認書更新",
+        component: () =>
+          import("@/views/protected/business/CargoManifestUpdate.vue"),
       },
     ],
   },
@@ -61,17 +58,31 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
+
+function findName(key: string){
+  return routes[1].children?.find((s)=>`/user/${s.path}`===key)?.name;
+}
 const whiteList = ["/login", "/register"];
 router.beforeEach((to, from, next) => {
+  window.scrollTo(0, 0);
   if (!getToken()) {
     if (whiteList.indexOf(to.path) !== -1) {
       // 在免登录白名单，直接进入
       next();
     } else {
-      next({ name: "login", query:  to.fullPath==='/'?{}:{ redirect:to.fullPath } });
+      next("login");
     }
+  }else{
+    const store = useStore();
+    if(!store.navTags.some((s)=>s.key === to.path)){
+      store.navTags.push({
+        key: to.path,
+        label: findName(to.path) as string||'',
+      })
+    }
+    store.selectedKey = to.path;
+    next();
   }
-  next();
 });
 
 export default router;

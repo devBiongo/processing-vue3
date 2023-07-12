@@ -75,7 +75,7 @@ export default defineComponent({
   top: 0;
 }
 .layout-content {
-  margin: 24px 24px;
+  margin: 18px 24px;
   min-height: 100vh;
 }
 </style>

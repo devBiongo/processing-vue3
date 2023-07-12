@@ -4,7 +4,7 @@ import AssignmentTable from "@/components/tables/AssignmentTable.vue";
 import ConsignTable from "@/components/tables/ConsignTable.vue";
 import NofityTable from "@/components/tables/NofityTable.vue";
 import { nanoid } from "nanoid";
-import { defineComponent, onMounted, reactive } from "vue";
+import { defineComponent, reactive } from "vue";
 import { useRouter } from "vue-router";
 import http from "@/utils/request";
 import { CoffeeOutlined } from "@ant-design/icons-vue";
@@ -19,19 +19,14 @@ export default defineComponent({
   },
   setup() {
     const pageState = reactive<any>({
-      pageLoading: true,
+      pageLoading: false,
       btnLoading: false,
       tableMode: 1,
-      formState: {blCount:'ORIGINAL ONE(1)', blCopy: 'ONE(1)'},
+      formState: { blCount: "ORIGINAL ONE(1)", blCopy: "ONE(1)" },
       assignmentData: [{ key: nanoid() }],
       containerData: [{ key: nanoid() }],
       consignData: [{ key: nanoid() }],
       nofityData: [{ key: nanoid() }],
-    });
-    onMounted(() => {
-      setTimeout(() => {
-        pageState.pageLoading = false;
-      }, 500);
     });
     const router = useRouter();
     function submit() {
@@ -41,15 +36,7 @@ export default defineComponent({
           .post("/task/cargo/registerNewOne", pageState.formState)
           .then((data) => {
             if (data) {
-              pageState.pageLoading = true;
-              setTimeout(() => {
-                router.push({
-                  path: "/success",
-                  query: { messge: "タスクの新規作成は出来ました!" },
-                });
-              }, 1000);
-            } else {
-              pageState.btnLoading = false;
+              router.push('/user/taskList');
             }
           });
       }, 1500);
@@ -90,7 +77,9 @@ export default defineComponent({
           </a-col>
           <a-col :span="8" style="text-align: center">
             <a-typography-title :level="2"
-              >船積確認書管理画面<span style="color: green;">(新規)</span></a-typography-title
+              >船積確認書管理画面<span style="color: green"
+                >(新規)</span
+              ></a-typography-title
             >
           </a-col>
           <a-col :span="8">
@@ -299,7 +288,9 @@ export default defineComponent({
               v-model:value="pageState.formState.blCount"
               style="width: 100%"
             >
-              <a-select-option value="ORIGINAL ONE(1)">ORIGINAL ONE(1)</a-select-option>
+              <a-select-option value="ORIGINAL ONE(1)"
+                >ORIGINAL ONE(1)</a-select-option
+              >
             </a-select>
           </a-form-item>
           <a-form-item label="BL COPY">
@@ -325,7 +316,9 @@ export default defineComponent({
               v-model:value="pageState.formState.paymentType"
               style="width: 100%"
             >
-              <a-select-option value="PREPAID AT COLLECT">PREPAID AT COLLECT</a-select-option>
+              <a-select-option value="PREPAID AT COLLECT"
+                >PREPAID AT COLLECT</a-select-option
+              >
               <a-select-option value="COLLECT">COLLECT</a-select-option>
             </a-select>
           </a-form-item>

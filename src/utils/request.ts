@@ -1,9 +1,16 @@
 import { message } from "ant-design-vue";
-import axios from "axios";
-import qs from "qs";
+import axios, { AxiosError } from "axios";
+// import qs from "qs";
 import { getToken } from "./auth";
 
-const instance = axios.create({ baseURL: "/api", timeout: 10000 });
+const baseUrl = "/api";
+const instance = axios.create({
+  baseURL: baseUrl,
+  timeout: 5 * 1000,
+  headers: {
+    "Content-Type": "application/json;charset=UTF-8",
+  },
+});
 instance.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -17,43 +24,94 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    console.log(1,response)
-    // 响应状态码处理
-    if (![200, 304, 400].includes(response.status)) {
-      return Promise.reject("ネットワーク異常");
+    console.log("responseInterceptor", response);
+    if (!response.data) {
+      return Promise.reject(
+        `Error:${response.config.url} response.data is null or does not exist ！`
+      );
     }
-    // 业务码处理
+    if (response.config.responseType == "blob") {
+      return Promise.resolve(response.data);
+    }
     if (response.data.code !== 200) {
-      return Promise.reject(response.data.message);
+      return Promise.reject(`${response.data.message}(${response.data.code})`);
     }
-    // 正常则返回数据
-    return Promise.resolve(response.data.data);
+    return Promise.resolve(response.data);
   },
-  (response) => {
-    return Promise.reject(response.response.data.message);
+  (error: AxiosError) => {
+    console.log("responseInterceptorCatch", error);
+    switch (error.response?.status) {
+      case 400:
+        error.message = "请求错误(400)";
+        break;
+      case 401:
+        error.message = "未授权，请重新登录(401)";
+        break;
+      case 403:
+        if (error.response.data) {
+          error.message = (error.response.data as any).message;
+        } else {
+          error.message = "拒绝访问(403)";
+        }
+        break;
+      case 404:
+        error.message = "请求出错(404)";
+        break;
+      case 408:
+        error.message = "请求超时(408)";
+        break;
+      case 500:
+        error.message = "服务器错误(500)";
+        break;
+      case 501:
+        error.message = "服务未实现(501)";
+        break;
+      case 502:
+        error.message = "网络错误(502)";
+        break;
+      case 503:
+        error.message = "服务不可用(503)";
+        break;
+      case 504:
+        error.message = "网络超时(504)";
+        break;
+      case 505:
+        error.message = "HTTP版本不受支持(505)";
+        break;
+      default:
+        error.message = `连接出错`;
+    }
+    if (error.message && error.message.indexOf("timeout") !== -1) {
+      error.message = "请求超时";
+    }
+    return Promise.reject(error.message);
   }
 );
 
 export default {
   post(url: string, data: any) {
-    return instance({
-      method: "post",
-      url,
-      data,
-    }).catch((error) => {
-      message.error(error);
+    return new Promise((resolve) => {
+      instance
+        .post(url, data)
+        .then((response) =>{
+          resolve(response.data);
+        })
+        .catch((err) => {
+          message.error(err);
+          resolve(undefined);
+        });
     });
   },
-  get(url: string, params?: any) {
-    return instance({
-      method: "get",
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-      },
-      url,
-      params: qs.stringify(params), // get 请求时带的参数
-    }).catch((error) => {
-      message.error(error);
-    });
+  get(url: string) {
+    return new Promise((resolve) => {
+      instance.get(url)
+        .then((response) => {
+          resolve(response.data)
+        })
+        .catch((err) => {
+          message.error(err);
+          resolve(undefined);
+        })
+    })
   },
 };

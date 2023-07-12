@@ -1,7 +1,8 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref } from "vue";
 import http from "@/utils/request";
-import { DeleteOutlined } from "@ant-design/icons-vue";
+import { useRouter } from "vue-router";
+import { SearchOutlined } from "@ant-design/icons-vue";
 const rowSelection = ref({
   checkStrictly: false,
   onChange: (selectedRowKeys: (string | number)[], selectedRows: any[]) => {
@@ -57,18 +58,22 @@ let pageState: any = reactive({
 });
 export default defineComponent({
   components: {
-    DeleteOutlined,
+    SearchOutlined,
   },
   setup() {
-    const formState = reactive<any>({});
-    function navigate(invoiceNo: string) {
-      // window.open(`/cargoManifestUpdate?invoiceNo=${invoiceNo}`, "_blank");
-      window.open(`/cargoManifestUpdate?invoiceNo=${invoiceNo}`, "_blank",'width=1300, height=800, toolbar=0, location=0, status=0, menubar=0');
+    const formState = reactive<any>({ type: "2" });
+    const router = useRouter();
+    function navigate(uuid: string) {
+      router.push({
+        path: "/user/cargoManifestUpdate",
+        query: {
+          uuid,
+        },
+      });
     }
     onMounted(() => {
       http.get("/task/cargo/getAllCargo").then((data: any) => {
         if (data) {
-          console.log(data);
           pageState.dataSource = data.map((s: any) => {
             s.key = `${s.invoiceNo}_${s.subNo}`;
             return s;
@@ -83,40 +88,47 @@ export default defineComponent({
 
 <template>
   <div class="cargo-list-container">
-    <div class="search-area">
-      <a-input-group compact>
-        <a-select v-model:value="formState.value15" style="width: 100px">
-          <a-select-option value="Sign Up">自社</a-select-option>
-          <a-select-option value="Sign In">他社</a-select-option>
-        </a-select>
-        <a-auto-complete
-          v-model:value="formState.value16"
-          :options="[{ value: 'text 1' }, { value: 'text 2' }]"
-          style="width: 200px"
-          placeholder="請求書番号"
-        />
-      </a-input-group>
-    </div>
     <div class="content-area">
+      <a-button type="primary" style="float: right; margin: 10px">
+        <template #icon><SearchOutlined /></template>
+        検索
+      </a-button>
+      <a-button type="primary" style="float: right; margin: 10px">
+        クリア
+      </a-button>
+      <ul class="search-area">
+        <li>
+          <label>ステータス</label>
+          <a-radio-group name="type" v-model:value="formState.type">
+            <a-radio value="1">一時保存</a-radio>
+            <a-radio value="2">変更なし</a-radio>
+            <a-radio value="3">変更あり</a-radio>
+            <a-radio value="4">終了</a-radio>
+          </a-radio-group>
+        </li>
+        <li>
+          <label>登録日</label>
+          <div>
+            <a-range-picker style="width: 380px" />
+          </div>
+        </li>
+        <li style="margin-top: 12px">
+          <label>請求書番号(自社)</label>
+          <div style="margin-right: 40px">
+            <a-input style="width: 250px" />
+          </div>
+          <label>請求書番号(他社)</label>
+          <div>
+            <a-input style="width: 250px" />
+          </div>
+        </li>
+      </ul>
       <a-table
         :columns="columns"
         :dataSource="pageState.dataSource"
         :rowSelection="rowSelection"
         size="middle"
       >
-        <template #title>
-          <div style="overflow: hidden">
-            <a-typography-title :level="4" style="float: left"
-              >タスク一覧</a-typography-title
-            >
-            <a-button type="primary" style="float: right"> 
-              <template #icon>
-                <delete-outlined />
-              </template>
-              削除 
-            </a-button>
-          </div>
-        </template>
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-badge color="#108ee9" text="正常" status="processing" />
@@ -126,7 +138,8 @@ export default defineComponent({
               <a
                 @click="
                   () => {
-                    navigate(record.invoiceNo);
+                    console.log(record);
+                    navigate(record.uuid);
                   }
                 "
                 >詳細</a
@@ -139,17 +152,35 @@ export default defineComponent({
   </div>
 </template>
 
+<!-- <a-button type="primary" style="float: right">
+  <template #icon>
+    <delete-outlined />
+  </template>
+  削除
+</a-button> 
+
+-->
+
 <style lang="less" scoped>
 .cargo-list-container {
   .search-area {
-    background-color: #fff;
-    padding: 20px 20px;
+    list-style: none; /* 去除列表标记 */
+    padding: 10px 5px;
+    li {
+      height: 50px;
+      display: flex;
+      label {
+        line-height: 28px;
+        width: 160px;
+      }
+    }
   }
   .content-area {
     padding: 10px;
     margin-top: 10px;
     background-color: #fff;
     min-height: 800px;
+    position: relative;
   }
 }
 </style>

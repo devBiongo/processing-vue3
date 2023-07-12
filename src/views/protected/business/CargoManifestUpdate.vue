@@ -4,79 +4,84 @@ import AssignmentTable from "@/components/tables/AssignmentTable.vue";
 import ConsignTable from "@/components/tables/ConsignTable.vue";
 import NofityTable from "@/components/tables/NofityTable.vue";
 import { defineComponent, onMounted, reactive, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import http from "@/utils/request";
 import dayjs from "dayjs";
 import { dateFormat, formatDateToPicker } from "@/utils/common";
 
-const pageState = reactive<{
-  loading: boolean;
-  formState: any;
-  assignmentData: [];
-  containerData: [];
-  consignData: [];
-  nofityData: [];
-}>({
-  loading: true,
-  formState: {},
-  assignmentData: [],
-  containerData: [],
-  consignData: [],
-  nofityData: [],
-});
 export default defineComponent({
   components: { ContainerTable, AssignmentTable, ConsignTable, NofityTable },
   setup() {
+    const pageState = reactive<{
+      loading: boolean;
+      formState: any;
+      assignmentData: [];
+      containerData: [];
+      consignData: [];
+      nofityData: [];
+    }>({
+      loading: true,
+      formState: {},
+      assignmentData: [],
+      containerData: [],
+      consignData: [],
+      nofityData: [],
+    });
     onMounted(() => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const invoiceNo = urlParams.get("invoiceNo");
-      http.get(`/task/cargo/getLatestCargo/${invoiceNo}`).then((data: any) => {
-        if (data) {
-          data.bookingDate = data.bookingDate
-            ? dayjs(
-                formatDateToPicker(new Date(data.bookingDate)),
-                dateFormat.common
-              )
-            : undefined;
-          data.departureDate = data.departureDate
-            ? dayjs(
-                formatDateToPicker(new Date(data.departureDate)),
-                dateFormat.common
-              )
-            : undefined;
-          data.cyCut = data.cyCut
-            ? dayjs(formatDateToPicker(new Date(data.cyCut)), dateFormat.common)
-            : undefined;
-          data.fileCut = data.fileCut
-            ? dayjs(
-                formatDateToPicker(new Date(data.fileCut)),
-                dateFormat.common
-              )
-            : undefined;
-          data.openDay = data.openDay
-            ? dayjs(
-                formatDateToPicker(new Date(data.openDay)),
-                dateFormat.common
-              )
-            : undefined;
-          data.arrivalDate = data.arrivalDate
-            ? dayjs(
-                formatDateToPicker(new Date(data.arrivalDate)),
-                dateFormat.common
-              )
-            : undefined;
-          data.issuedAt = data.issuedAt
-            ? dayjs(
-                formatDateToPicker(new Date(data.issuedAt)),
-                dateFormat.common
-              )
-            : undefined;
-          pageState.formState = data;
-          setTimeout(() => {
-            pageState.loading = false;
-          }, 500);
-        }
-      });
+      const route = useRoute();
+      http
+        .get(`/task/cargo/getLatestCargo/${route.query.uuid}`)
+        .then((data: any) => {
+          if (data) {
+            data.bookingDate = data.bookingDate
+              ? dayjs(
+                  formatDateToPicker(new Date(data.bookingDate)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.departureDate = data.departureDate
+              ? dayjs(
+                  formatDateToPicker(new Date(data.departureDate)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.cyCut = data.cyCut
+              ? dayjs(
+                  formatDateToPicker(new Date(data.cyCut)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.fileCut = data.fileCut
+              ? dayjs(
+                  formatDateToPicker(new Date(data.fileCut)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.openDay = data.openDay
+              ? dayjs(
+                  formatDateToPicker(new Date(data.openDay)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.arrivalDate = data.arrivalDate
+              ? dayjs(
+                  formatDateToPicker(new Date(data.arrivalDate)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.issuedAt = data.issuedAt
+              ? dayjs(
+                  formatDateToPicker(new Date(data.issuedAt)),
+                  dateFormat.common
+                )
+              : undefined;
+            pageState.formState = data;
+            console.log(data);
+            setTimeout(() => {
+              pageState.loading = false;
+            }, 500);
+          }
+        });
     });
     const mode = ref<number>(2);
     const router = useRouter();
@@ -116,7 +121,9 @@ export default defineComponent({
           </a-col>
           <a-col :span="8" style="text-align: center">
             <a-typography-title :level="2"
-              >船積確認書管理画面<span style="color: green;">(既存)</span></a-typography-title
+              >船積確認書管理画面<span style="color: green"
+                >(既存)</span
+              ></a-typography-title
             >
           </a-col>
           <a-col :span="8">
@@ -189,11 +196,10 @@ export default defineComponent({
             <a-date-picker
               v-model:value="pageState.formState.bookingDate"
               style="width: 100%"
-              show-time
             />
           </a-form-item>
           <a-form-item label="請求書番号(自社)">
-            <a-input v-model:value="pageState.formState.invoiceNo" disabled />
+            <a-input v-model:value="pageState.formState.invoiceNo" />
           </a-form-item>
           <a-form-item label="請求書番号(他社)">
             <a-input v-model:value="pageState.formState.invoiceNoOther" />
@@ -242,7 +248,15 @@ export default defineComponent({
             </a-select>
           </a-form-item>
           <a-form-item label="PLACE OF RECEIPT">
-            <a-input v-model:value="pageState.formState.placeOfReceipt" />
+            <a-select
+              v-model:value="pageState.formState.placeOfReceipt"
+              style="width: 100%"
+            >
+              <a-select-option value="东京港">东京港 CY </a-select-option>
+              <a-select-option value="大阪港">大阪港 CY</a-select-option>
+              <a-select-option value="名古屋港">名古屋港 CY</a-select-option>
+              <a-select-option value="横滨港">横滨港 CY</a-select-option>
+            </a-select>
           </a-form-item>
           <a-form-item label="PORT OF LOADING">
             <a-select
@@ -320,35 +334,45 @@ export default defineComponent({
             <a-date-picker
               v-model:value="pageState.formState.issuedAt"
               style="width: 100%"
-              show-time
             />
           </a-form-item>
           <a-form-item label="NOS.OF B/L">
-            <a-input-number
+            <a-select
               v-model:value="pageState.formState.blCount"
               style="width: 100%"
-            />
+            >
+              <a-select-option value="ORIGINAL ONE(1)"
+                >ORIGINAL ONE(1)</a-select-option
+              >
+            </a-select>
           </a-form-item>
           <a-form-item label="BL COPY">
             <a-select
               v-model:value="pageState.formState.blCopy"
               style="width: 100%"
             >
-              <a-select-option value="1">1</a-select-option>
+              <a-select-option value="ONE(1)">ONE(1)</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
         <a-col :span="10">
           <a-form-item label="BL MARK">
-            <a-input v-model:value="pageState.formState.blMark" />
+            <a-select
+              v-model:value="pageState.formState.blMark"
+              style="width: 100%"
+            >
+              <a-select-option value="NO MARK">NO MARK</a-select-option>
+            </a-select>
           </a-form-item>
           <a-form-item label="PAYMENT TYPE">
             <a-select
               v-model:value="pageState.formState.paymentType"
               style="width: 100%"
             >
-              <a-select-option value="現金">現金</a-select-option>
-              <a-select-option value="振り込む">振り込む</a-select-option>
+              <a-select-option value="PREPAID AT COLLECT"
+                >PREPAID AT COLLECT</a-select-option
+              >
+              <a-select-option value="COLLECT">COLLECT</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
@@ -454,10 +478,7 @@ export default defineComponent({
                     .post('/task/cargo/updateCargoManifest', pageState.formState)
                     .then((data: any) => {
                       if(data&&data.updates>0){
-                        router.push({
-                          path: '/success',
-                          query: { messge: 'タスクの更新は出来ました!' },
-                        });
+                        router.push('/user/taskList');
                       }else{
                         pageState.loading = false;
                       }
@@ -468,7 +489,7 @@ export default defineComponent({
             >
           </a-affix>
         </a-col>
-        <a-col style="margin-left: 20px;">
+        <a-col style="margin-left: 20px">
           <a-affix :offset-bottom="30">
             <a-button
               type="primary"
@@ -498,11 +519,11 @@ export default defineComponent({
   min-height: 500px;
   padding-top: 50px;
   padding-bottom: 100px;
-  background-color: #fff;
   .page-title {
     text-align: center;
   }
   .form {
+    background-color: #fff;
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
     background-color: #fff;
     min-height: 1500px;

@@ -7,9 +7,7 @@ export default defineComponent({
   setup() {
     const  router = useRouter();
     function navigate(){
-      // window.open('/cargoManifest', '_blank');
-      router.push('/cargoManifest')
-      // window.open('/cargoManifest', '_blank', 'width=1300, height=800, toolbar=0, location=0, status=0, menubar=0');
+      router.push('/user/cargoManifest')
     }
     return {navigate};
   },

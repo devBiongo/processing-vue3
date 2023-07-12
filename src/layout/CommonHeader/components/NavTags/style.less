@@ -8,6 +8,7 @@
   margin: 0 2px;
   color: #615d5d;
   border: 1px solid rgba(64, 62, 62, 0.2);
+  transition: opacity 0.3s ease;
   cursor: pointer;
   white-space: nowrap;
 
@@ -17,23 +18,23 @@
     
 
     &:hover {
-      color: black
+      color: black;
+      transform: scale(1.4);
     }
   }
   user-select: none;
 }
 
-// .nav-tag-active {
-//   // background-color: rgba(206, 206, 235,.3);
-//   // border: 1px solid rgba(206, 206, 235,.3);
-//   background-color: #2f54eb;
-//   color: #fff;
+.nav-tag-active {
+  background-color: #2f54eb;
+  border: none;
+  color: #fff;
+  .icon {
+    color: #fff;
 
-//   .icon {
-//     color: #fff;
-
-//     &:hover {
-//       color: #fff;
-//     }
-//   }
-// }
+    &:hover {
+      color: #fff;
+      
+    }
+  }
+}

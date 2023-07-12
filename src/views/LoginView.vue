@@ -58,8 +58,7 @@ export default defineComponent({
         uuid: formState.uuid,
         code: formState.code,
       };
-      setTimeout(()=>{
-        http.post("/user/login", params).then((data: any) => {
+      http.post("/user/login", params).then((data: any) => {
         if (data) {
           setToken(data.token);
           router.push("/user/home");
@@ -69,7 +68,6 @@ export default defineComponent({
         }
         formState.loading = false;
       });
-      },2000)
     };
     return { formState, getCodeImg, onFinish };
   },

@@ -1,15 +1,15 @@
-import { setItem, getItem, removeItem } from "./cookie";
+import SessionUtil from '@/utils/SessionUtil'
 
 const TokenKey = "Access-Token";
 
 export function getToken() {
-  return getItem(TokenKey);
+  return SessionUtil.get(TokenKey);
 }
 
 export function setToken(token: string) {
-  return setItem(TokenKey, token, 1);
+  return SessionUtil.set(TokenKey, token);
 }
 
 export function removeToken() {
-  return removeItem(TokenKey);
+  return SessionUtil.remove(TokenKey);
 }
