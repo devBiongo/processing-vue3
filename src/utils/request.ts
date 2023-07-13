@@ -24,7 +24,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    console.log("responseInterceptor", response);
+    // console.log("responseInterceptor", response);
     if (!response.data) {
       return Promise.reject(
         `Error:${response.config.url} response.data is null or does not exist ！`
@@ -39,7 +39,7 @@ instance.interceptors.response.use(
     return Promise.resolve(response.data);
   },
   (error: AxiosError) => {
-    console.log("responseInterceptorCatch", error);
+    // console.log("responseInterceptorCatch", error);
     switch (error.response?.status) {
       case 400:
         error.message = "请求错误(400)";

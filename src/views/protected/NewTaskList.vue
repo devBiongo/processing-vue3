@@ -1,26 +1,17 @@
-<script lang="ts">
-import { defineComponent } from "vue";
+<script lang="ts" setup>
 import { useRouter } from "vue-router";
 
-export default defineComponent({
-  components: {},
-  setup() {
-    const  router = useRouter();
-    function navigate(){
-      router.push('/user/cargoManifest')
-    }
-    return {navigate};
-  },
-});
+const router = useRouter();
+function navigate() {
+  router.push("/user/cargoManifest");
+}
 </script>
 
 <template>
   <div class="new-task-container">
     <div class="box" @click="navigate">
-        <a-typography-title :level="4">新規</a-typography-title>
-        <div class="content">
-            船積確認書管理画面
-        </div>
+      <a-typography-title :level="4">新規</a-typography-title>
+      <div class="content">船積確認書管理画面</div>
     </div>
   </div>
 </template>
@@ -36,11 +27,11 @@ export default defineComponent({
     height: 350px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    transition: all .5s ease;
-    .content{
-        font-size: 18px;
-        margin: 100px auto;
-        text-align: center;
+    transition: all 0.5s ease;
+    .content {
+      font-size: 18px;
+      margin: 100px auto;
+      text-align: center;
     }
     cursor: pointer;
     &:hover {

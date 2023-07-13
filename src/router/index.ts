@@ -1,6 +1,5 @@
-
 import { getToken } from "@/utils/auth";
-import { useStore } from '@/pinia'
+import { useStore } from "@/pinia";
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
@@ -59,8 +58,8 @@ const router = createRouter({
   routes,
 });
 
-function findName(key: string){
-  return routes[1].children?.find((s)=>`/user/${s.path}`===key)?.name;
+function findName(key: string) {
+  return routes[1].children?.find((s) => `/user/${s.path}` === key)?.name;
 }
 const whiteList = ["/login", "/register"];
 router.beforeEach((to, from, next) => {
@@ -72,13 +71,17 @@ router.beforeEach((to, from, next) => {
     } else {
       next("login");
     }
-  }else{
+  } else {
     const store = useStore();
-    if(!store.navTags.some((s)=>s.key === to.path)){
+    const index = store.navTags.findIndex((s) => s.key === to.path);
+    if (index === -1) {
       store.navTags.push({
         key: to.path,
-        label: findName(to.path) as string||'',
-      })
+        label: (findName(to.path) as string) || "",
+        note: `${to.query.uuid || ""}`,
+      });
+    } else {
+      store.navTags[index].note = `${to.query.uuid || ""}`;
     }
     store.selectedKey = to.path;
     next();

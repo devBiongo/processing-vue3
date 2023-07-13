@@ -6,7 +6,8 @@ export const useStore = defineStore('user', {
     navTags: [
       {
         key: '/user/home',
-        label: 'ホームページ'
+        label: 'ホームページ',
+        note: '',
       },
     ],
   }),

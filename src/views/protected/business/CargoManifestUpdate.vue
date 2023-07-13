@@ -76,10 +76,7 @@ export default defineComponent({
                 )
               : undefined;
             pageState.formState = data;
-            console.log(data);
-            setTimeout(() => {
-              pageState.loading = false;
-            }, 500);
+            pageState.loading = false;
           }
         });
     });

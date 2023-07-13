@@ -138,7 +138,6 @@ export default defineComponent({
               <a
                 @click="
                   () => {
-                    console.log(record);
                     navigate(record.uuid);
                   }
                 "
