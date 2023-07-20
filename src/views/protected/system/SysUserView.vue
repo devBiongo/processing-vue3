@@ -1,40 +1,29 @@
-<script lang="ts">
-import CommonTable from "@/components/CommonTable.vue";
+<script lang="ts" setup>
 import AppSplit from "@/components/AppSplit.vue";
 import AppTree from "@/components/AppTree.vue";
-import { defineComponent, reactive, Ref, ref } from "vue";
+import { onMounted, reactive } from "vue";
 import { DownloadOutlined, PlusOutlined } from "@ant-design/icons-vue";
+import http from "@/utils/request";
 
-interface DataItem {
-  key: number | string;
-  name: string;
-  account: string;
-  status: boolean;
-  company: string;
-  createdTime: string;
-  actions?: any[];
-}
 const columns = [
   {
-    title: "名前",
-    dataIndex: "name",
-    key: "name",
+    title: "ニックネーム",
+    dataIndex: "nickname",
+    key: "nickname",
+    width: "16%",
   },
   {
     title: "アカウント",
-    dataIndex: "account",
-    key: "account",
-    // width: "12%",
+    dataIndex: "username",
+    key: "username",
+    width: "10%",
+    
   },
   {
     title: "ステータス",
     dataIndex: "status",
     key: "status",
-  },
-  {
-    title: "会社",
-    dataIndex: "company",
-    key: "company",
+    width: "10%",
   },
   {
     title: "登録時間",
@@ -48,46 +37,40 @@ const columns = [
     key: "actions",
   },
 ];
-const dataSource: Ref<DataItem[]> = ref([
-  {
-    key: 1,
-    name: "呉",
-    account: "admin",
-    status: true,
-    company: "123",
-    createdTime: "2023-06-02",
-  },
-  {
-    key: 2,
-    name: "John",
-    account: "test01",
-    status: true,
-    company: "123",
-    createdTime: "2023-06-02",
-  },
-]);
-interface FormState {
-  username: string;
-  password: string;
-  remember: boolean;
-}
-export default defineComponent({
-  components: { CommonTable, AppSplit, AppTree,DownloadOutlined,PlusOutlined },
-  setup() {
-    const formState = reactive<FormState>({
-      username: "",
-      password: "",
-      remember: true,
-    });
-    const onFinish = (values: any) => {
-      console.log("Success:", values);
-    };
 
-    const onFinishFailed = (errorInfo: any) => {
-      console.log("Failed:", errorInfo);
-    };
-    return { columns, dataSource, formState, onFinish, onFinishFailed };
-  },
+
+const pageState = reactive({
+  loading: false,
+  dataSource: [],
+});
+
+
+// [
+//   {
+//     key: 1,
+//     nickname: "管",
+//     username: "admin",
+//     status: true,
+//     company: "123",
+//     createdTime: "2023-06-02",
+//   },
+//   {
+//     key: 2,
+//     nickname: "John",
+//     username: "test01",
+//     status: true,
+//     company: "123",
+//     createdTime: "2023-06-02",
+//   },
+// ];
+
+
+onMounted(() => {
+  http.get("/system/fetchAllUsers").then((data: any) => {
+    if(data){
+      pageState.dataSource = data;
+    }
+  });
 });
 </script>
 
@@ -112,13 +95,39 @@ export default defineComponent({
             </a-button>
           </div>
           <a-divider style="margin-bottom: 0" />
-          <CommonTable :columns="columns" :dataSource="dataSource" />
+          <a-table :columns="columns" :dataSource="pageState.dataSource" size="middle">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'nickname'">
+                <a-avatar
+                  shape="square"
+                  size="middle"
+                  :style="{
+                    backgroundColor:
+                      record.username === 'admin' ? '#f38709' : '#813afd',
+                    verticalAlign: 'middle',
+                  }"
+                >
+                  {{ record.nickname.length>1?record.nickname.substring(0,1):record.nickname }}
+                </a-avatar>
+                <span style="display: inline-block;padding: 0 15px;">{{ record.nickname }}</span>
+              </template>
+              <template v-else-if="column.key === 'status'">
+                <a-badge color="#108ee9" text="正常" status="processing" />
+              </template>
+              <template v-else-if="column.key === 'actions'">
+                <span>
+                  <a>詳細</a>
+                  <a-divider type="vertical" />
+                  <a>パスワードリセット</a>
+                </span>
+              </template>
+            </template>
+          </a-table>
         </div>
       </template>
     </AppSplit>
   </div>
 </template>
-
 
 <style scoped>
 .container {
@@ -131,7 +140,7 @@ export default defineComponent({
   height: 30px;
   padding-top: 10px;
 }
-.btn{
+.btn {
   float: right;
   margin: 0 10px;
   height: 30px;

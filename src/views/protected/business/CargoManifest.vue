@@ -3,49 +3,90 @@ import ContainerTable from "@/components/tables/ContainerTable.vue";
 import AssignmentTable from "@/components/tables/AssignmentTable.vue";
 import ConsignTable from "@/components/tables/ConsignTable.vue";
 import NofityTable from "@/components/tables/NofityTable.vue";
-import { nanoid } from "nanoid";
-import { defineComponent, reactive } from "vue";
-import { useRouter } from "vue-router";
+import { defineComponent, onMounted, reactive, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import http from "@/utils/request";
-import { CoffeeOutlined } from "@ant-design/icons-vue";
+import dayjs from "dayjs";
+import { dateFormat, formatDateToPicker } from "@/utils/common";
 
 export default defineComponent({
-  components: {
-    ContainerTable,
-    AssignmentTable,
-    ConsignTable,
-    NofityTable,
-    CoffeeOutlined,
-  },
+  components: { ContainerTable, AssignmentTable, ConsignTable, NofityTable },
   setup() {
-    const pageState = reactive<any>({
-      pageLoading: false,
-      btnLoading: false,
-      tableMode: 1,
-      formState: { blCount: "ORIGINAL ONE(1)", blCopy: "ONE(1)" },
-      assignmentData: [{ key: nanoid() }],
-      containerData: [{ key: nanoid() }],
-      consignData: [{ key: nanoid() }],
-      nofityData: [{ key: nanoid() }],
+    const pageState = reactive<{
+      loading: boolean;
+      formState: any;
+      assignmentData: [];
+      containerData: [];
+      consignData: [];
+      nofityData: [];
+    }>({
+      loading: true,
+      formState: {},
+      assignmentData: [],
+      containerData: [],
+      consignData: [],
+      nofityData: [],
     });
+    onMounted(() => {
+      const route = useRoute();
+      http
+        .get(`/task/cargo/getLatestCargo/${route.query.uuid}`)
+        .then((data: any) => {
+          if (data) {
+            data.bookingDate = data.bookingDate
+              ? dayjs(
+                  formatDateToPicker(new Date(data.bookingDate)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.departureDate = data.departureDate
+              ? dayjs(
+                  formatDateToPicker(new Date(data.departureDate)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.cyCut = data.cyCut
+              ? dayjs(
+                  formatDateToPicker(new Date(data.cyCut)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.fileCut = data.fileCut
+              ? dayjs(
+                  formatDateToPicker(new Date(data.fileCut)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.openDay = data.openDay
+              ? dayjs(
+                  formatDateToPicker(new Date(data.openDay)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.arrivalDate = data.arrivalDate
+              ? dayjs(
+                  formatDateToPicker(new Date(data.arrivalDate)),
+                  dateFormat.common
+                )
+              : undefined;
+            data.issuedAt = data.issuedAt
+              ? dayjs(
+                  formatDateToPicker(new Date(data.issuedAt)),
+                  dateFormat.common
+                )
+              : undefined;
+            pageState.formState = data;
+            pageState.loading = false;
+          }
+        });
+    });
+    const mode = ref<number>(2);
     const router = useRouter();
-    function submit() {
-      pageState.btnLoading = true;
-      setTimeout(() => {
-        http
-          .post("/task/cargo/registerNewOne", pageState.formState)
-          .then((data) => {
-            if (data) {
-              router.push('/user/taskList');
-            }
-          });
-      }, 1500);
-    }
     return {
+      mode,
       pageState,
       router,
       http,
-      submit,
     };
   },
 });
@@ -60,15 +101,15 @@ export default defineComponent({
         align-items: center;
         height: 700px;
       "
-      v-if="pageState.pageLoading"
+      v-if="pageState.loading"
     >
       <a-spin size="large" />
     </div>
     <a-form
-      v-if="!pageState.pageLoading"
       class="form"
       :layout="pageState.formState.layout"
       v-bind="{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }"
+      v-if="!pageState.loading"
     >
       <div class="page-header">
         <a-row>
@@ -76,11 +117,9 @@ export default defineComponent({
             <a-button type="primary">添付ファイル管理</a-button>
           </a-col>
           <a-col :span="8" style="text-align: center">
-            <a-typography-title :level="2"
-              >船積確認書管理画面<span style="color: green"
-                >(新規)</span
-              ></a-typography-title
-            >
+            <a-typography-title :level="2">
+              船積確認書管理画面
+            </a-typography-title>
           </a-col>
           <a-col :span="8">
             <a-form-item
@@ -140,8 +179,7 @@ export default defineComponent({
               style="width: 100%"
             >
               <a-select-option value="自社">自社</a-select-option>
-              <a-select-option value="委託">委託</a-select-option>
-              <a-select-option value="受託">受託</a-select-option>
+              <a-select-option value="他社">他社</a-select-option>
             </a-select>
           </a-form-item>
           <a-form-item label="BOOKING NO">
@@ -162,15 +200,11 @@ export default defineComponent({
             <a-input v-model:value="pageState.formState.invoiceNoOther" />
           </a-form-item>
           <a-form-item label="FREIGHT">
-            <a-select
+            <a-input-number
               v-model:value="pageState.formState.freight"
+              prefix="$"
               style="width: 100%"
-            >
-              <a-select-option value="PREPAID AS ARRANGGED"
-                >PREPAID AS ARRANGED</a-select-option
-              >
-              <a-select-option value="COLLECT">COLLECT</a-select-option>
-            </a-select>
+            />
           </a-form-item>
         </a-col>
         <a-col :span="24" style="padding: 0px 55px">
@@ -199,7 +233,14 @@ export default defineComponent({
             </a-select>
           </a-form-item>
           <a-form-item label="VESSEL NO">
-            <a-input v-model:value="pageState.formState.vesselNo" />
+            <a-select
+              v-model:value="pageState.formState.vesselNo"
+              style="width: 100%"
+            >
+              <a-select-option value="船号1">船号1</a-select-option>
+              <a-select-option value="船号2">船号2</a-select-option>
+              <a-select-option value="船号3">船号3</a-select-option>
+            </a-select>
           </a-form-item>
           <a-form-item label="PLACE OF RECEIPT">
             <a-select
@@ -224,7 +265,13 @@ export default defineComponent({
             </a-select>
           </a-form-item>
           <a-form-item label="PORT OF DISCHARGE">
-            <a-input v-model:value="pageState.formState.portOfDischarge" />
+            <a-select
+              v-model:value="pageState.formState.portOfDischarge"
+              style="width: 100%"
+            >
+              <a-select-option value="东京港">福建港</a-select-option>
+              <a-select-option value="大阪港">上海港</a-select-option>
+            </a-select>
           </a-form-item>
           <a-form-item label="PLACE OF DELIVERY">
             <a-input v-model:value="pageState.formState.placeOfDelivery" />
@@ -246,6 +293,7 @@ export default defineComponent({
           <a-form-item label="書類 CUT">
             <a-date-picker
               v-model:value="pageState.formState.fileCut"
+              :format="'YYYY-MM-DD'"
               style="width: 100%"
             />
           </a-form-item>
@@ -332,9 +380,9 @@ export default defineComponent({
           </a-form-item>
         </a-col>
       </a-row>
-      <!-- 運輸情報 -->
+      <!-- 運営情報 -->
       <a-typography-title :level="3" style="margin: 30px 0px">
-        運輸情報
+        運営情報
       </a-typography-title>
       <a-row class="box">
         <a-col :span="10">
@@ -365,58 +413,52 @@ export default defineComponent({
       <div class="switch-form">
         <div class="nav-area">
           <span
-            :class="pageState.tableMode === 1 ? 'selected' : ''"
+            :class="mode === 1 ? 'selected' : ''"
             @click="
               () => {
-                pageState.tableMode = 1;
+                mode = 1;
               }
             "
             >作業内容</span
           >
           <span
-            :class="pageState.tableMode === 2 ? 'selected' : ''"
+            :class="mode === 2 ? 'selected' : ''"
             @click="
               () => {
-                pageState.tableMode = 2;
+                mode = 2;
               }
             "
             >コンテナ情報</span
           >
           <span
-            :class="pageState.tableMode === 3 ? 'selected' : ''"
+            :class="mode === 3 ? 'selected' : ''"
             @click="
               () => {
-                pageState.tableMode = 3;
+                mode = 3;
               }
             "
             >Consign情報</span
           >
           <span
-            :class="pageState.tableMode === 4 ? 'selected' : ''"
+            :class="mode === 4 ? 'selected' : ''"
             @click="
               () => {
-                pageState.tableMode = 4;
+                mode = 4;
               }
             "
             >Nofity情報</span
           >
         </div>
         <assignment-table
-          v-if="pageState.tableMode === 1"
+          v-if="mode === 1"
           :dataSourse="pageState.assignmentData"
         />
         <container-table
-          v-if="pageState.tableMode === 2"
+          v-if="mode === 2"
           :dataSourse="pageState.containerData"
         />
-        <consign-table
-          v-if="pageState.tableMode === 3"
-          :dataSourse="pageState.consignData"
-        />
-        <nofity-table
-          v-if="pageState.tableMode === 4"
-          :dataSourse="pageState.nofityData"
-        />
+        <consign-table v-if="mode === 3" :dataSourse="pageState.consignData" />
+        <nofity-table v-if="mode === 4" :dataSourse="pageState.nofityData" />
       </div>
       <a-row style="margin-top: 50px">
         <a-col>
@@ -424,14 +466,40 @@ export default defineComponent({
             <a-button
               type="primary"
               size="large"
-              :loading="pageState.btnLoading"
-              @click="submit"
+              @click="
+                () => {
+                  pageState.loading = true;
+                  http
+                    .post('/task/cargo/updateCargoManifest', pageState.formState)
+                    .then((data: any) => {
+                      if(data&&data.updates>0){
+                        router.push('/wf/taskList');
+                      }else{
+                        pageState.loading = false;
+                      }
+                    });
+                }
+              "
+              >更新</a-button
             >
-              <template #icon>
-                <coffee-outlined />
-              </template>
-              起票
-            </a-button>
+          </a-affix>
+        </a-col>
+        <a-col style="margin-left: 20px">
+          <a-affix :offset-bottom="30">
+            <a-button
+              type="primary"
+              size="large"
+              @click="
+                () => {
+                  http
+                    .get('/file/pdf/download')
+                    .then((data: any) => {
+                      
+                    });
+                }
+              "
+              >出力</a-button
+            >
           </a-affix>
         </a-col>
       </a-row>
@@ -446,13 +514,13 @@ export default defineComponent({
   min-height: 500px;
   padding-top: 50px;
   padding-bottom: 100px;
-
   .page-title {
     text-align: center;
   }
   .form {
     background-color: #fff;
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    background-color: #fff;
     min-height: 1500px;
     padding: 35px 20px;
     padding-top: 0px;

@@ -13,38 +13,29 @@ const CommonSideMenu = defineComponent({
         const selectedKeys = ref<string[]>(["2"]);
         const menus = [
             {
-                key: '/user/home',
+                key: '/wf/home',
                 icon: <HomeOutlined style={{ fontSize: '18px' }} />,
                 label: 'ホームページ',
             },
             {
-                key: '/user/newTask',
-                icon: <FileDoneOutlined style={{ fontSize: '18px' }} />,
-                label: '新規タスク',
-            },
-            {
-                key: '/user/taskList',
-                icon: <FileDoneOutlined style={{ fontSize: '18px' }} />,
-                label: '既存タスク',
-            },
-            {
-                key: '/user/task',
+                key: '/wf/taskList',
                 icon: <FileDoneOutlined style={{ fontSize: '18px' }} />,
                 label: 'タスク管理',
             },
             {
-                key: '/user/manage',
-                icon: <UserOutlined style={{ fontSize: '18px' }} />,
-                label: 'ユーザー管理',
-            },
-            {
-                key: 'sub2',
+                key: '/system',
                 icon: <SettingOutlined style={{ fontSize: '18px' }} />,
-                label: 'システム管理',
+                label: 'システム',
                 children: [
                     {
-                        key: '/log',
-                        label: 'ログ一覧',
+                        key: '/wf/manage',
+                        icon: <UserOutlined style={{ fontSize: '18px' }} />,
+                        label: 'ユーザー管理',
+                    },
+                    {
+                        key: '/wf/company',
+                        icon: <UserOutlined style={{ fontSize: '18px' }} />,
+                        label: '会社管理',
                     },
                 ]
             }

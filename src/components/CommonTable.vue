@@ -1,10 +1,13 @@
-
-<script lang="ts">
-import { defineComponent, ref } from "vue";
+<script lang="ts" setup>
+import { ref } from "vue";
 const rowSelection = ref({
   checkStrictly: false,
   onChange: (selectedRowKeys: (string | number)[], selectedRows: any[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+    console.log(
+      `selectedRowKeys: ${selectedRowKeys}`,
+      "selectedRows: ",
+      selectedRows
+    );
   },
   onSelect: (record: any, selected: boolean, selectedRows: any[]) => {
     console.log(record, selected, selectedRows);
@@ -13,21 +16,19 @@ const rowSelection = ref({
     console.log(selected, selectedRows, changeRows);
   },
 });
-export default defineComponent({
-  props: {
-    columns: { type: Array, default: () => [] },
-    dataSource: { type: Array, default: () => [] },
-  },
-  setup() {
-    return {
-      rowSelection
-    };
-  },
+const props = defineProps({
+  columns: { type: Array, default: () => [] },
+  dataSource: { type: Array, default: () => [] },
 });
 </script>
 
 <template>
-  <a-table :columns="columns" :dataSource="dataSource" :rowSelection="rowSelection" size="middle">
+  <a-table
+    :columns="props.columns"
+    :dataSource="props.dataSource"
+    :rowSelection="rowSelection"
+    size="middle"
+  >
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'name'">
         <a-avatar
@@ -54,5 +55,3 @@ export default defineComponent({
     </template>
   </a-table>
 </template>
-
-

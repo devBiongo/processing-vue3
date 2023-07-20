@@ -58,10 +58,10 @@ export default defineComponent({
         uuid: formState.uuid,
         code: formState.code,
       };
-      http.post("/user/login", params).then((data: any) => {
+      http.post("/system/login", params).then((data: any) => {
         if (data) {
           setToken(data.token);
-          router.push("/user/home");
+          router.push("/wf/home");
         } else {
           getCodeImg();
           formState.code = "";

@@ -1,26 +1,20 @@
-<script lang="ts">
-import { nanoid } from "nanoid";
-import { defineComponent, reactive, ref, toRefs } from "vue";
-export default defineComponent({
-  props: {
-    title: { type: String, default: "no title" },
-    width: { type: Number, default: 800 },
-    record: { type: Object, default: null },
-  },
-  setup(props) {
-    const { record } = toRefs(props);
-    const open = ref<boolean>(false);
-    const modalFormState = record.value?record:reactive<any>({key: nanoid()});
-    const setOpen = (visible: boolean) => {
-      open.value = visible;
-    };
-    return {
-      open,
-      modalFormState,
-      setOpen,
-    };
-  },
+<script lang="ts" setup>
+import { reactive, ref } from "vue";
+
+const props = defineProps({
+  title: { type: String, default: () => "no title" },
+  width: { type: Number, default: () => 800 },
+  record: { type: Object, default: () => ({}) },
 });
+const modalFormState = reactive(props.record);
+const open = ref<boolean>(false);
+const setOpen = (visible?: boolean) => {
+  if (visible === undefined) {
+    open.value = false;
+  } else {
+    open.value = visible;
+  }
+};
 </script>
 
 <template>
@@ -46,5 +40,3 @@ export default defineComponent({
     </a-modal>
   </div>
 </template>
-  
-  

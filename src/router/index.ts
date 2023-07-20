@@ -9,8 +9,8 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/LoginView.vue"),
   },
   {
-    path: "/user",
-    name: "user",
+    path: "/wf",
+    name: "wf",
     component: () => import("../layout/CommonLayout.vue"),
     children: [
       {
@@ -19,19 +19,15 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/protected/home/HomeView.vue"),
       },
       {
-        path: "newTask",
-        name: "新規タスク",
-        component: () => import("@/views/protected/NewTaskList.vue"),
-      },
-      {
         path: "taskList",
         name: "タスク一覧",
         component: () => import("@/views/protected/business/CargoList.vue"),
       },
       {
-        path: "task",
-        name: "タスク（廃棄）",
-        component: () => import("@/views/protected/business/TaskViewOld.vue"),
+        path: "cargoManifest",
+        name: "船積確認書",
+        component: () =>
+          import("@/views/protected/business/CargoManifest.vue"),
       },
       {
         path: "manage",
@@ -39,15 +35,9 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/protected/system/SysUserView.vue"),
       },
       {
-        path: "cargoManifest",
-        name: "船積確認書起票",
-        component: () => import("@/views/protected/business/CargoManifest.vue"),
-      },
-      {
-        path: "cargoManifestUpdate",
-        name: "船積確認書更新",
-        component: () =>
-          import("@/views/protected/business/CargoManifestUpdate.vue"),
+        path: "company",
+        name: "会社管理",
+        component: () => import("@/views/protected/system/SysCompany.vue"),
       },
     ],
   },
@@ -59,7 +49,7 @@ const router = createRouter({
 });
 
 function findName(key: string) {
-  return routes[1].children?.find((s) => `/user/${s.path}` === key)?.name;
+  return routes[1].children?.find((s) => `/wf/${s.path}` === key)?.name;
 }
 const whiteList = ["/login", "/register"];
 router.beforeEach((to, from, next) => {
