@@ -2,10 +2,7 @@
 import { onMounted, reactive, ref } from "vue";
 import http from "@/utils/request";
 import { useRouter } from "vue-router";
-import {
-  PlusOutlined,
-  SearchOutlined,
-} from "@ant-design/icons-vue";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import CommonModal from "@/components/CommonModal.vue";
 
 const columns = [
@@ -44,6 +41,7 @@ const columns = [
 ];
 
 onMounted(() => {
+  pageState.tableLoading = true;
   http.get("/task/cargo/getAllCargo").then((data: any) => {
     if (data) {
       pageState.dataSource = data.map((s: any) => {
@@ -51,11 +49,13 @@ onMounted(() => {
         return s;
       });
     }
+    pageState.tableLoading = false;
   });
 });
 let pageState: any = reactive({
   dataSourse: [],
   loading: false,
+  tableLoading: false,
 });
 const rowSelection = ref({
   checkStrictly: false,
@@ -123,133 +123,141 @@ function submit(params: any, setOpen: any) {
           </div>
         </li>
       </ul>
+      <div style="padding-bottom: 10px; overflow: hidden">
+        <CommonModal title="新規" :width="800">
+          <template #visibleControl="{ setOpen }">
+            <a-button
+              type="primary"
+              @click="
+                () => {
+                  pageState.loading = false;
+                  setOpen(true);
+                }
+              "
+              style="float: right; margin-right: 10px"
+            >
+              <template #icon><plus-outlined /></template>
+              新規
+            </a-button>
+          </template>
+          <template #content="{ setOpen, modalFormState }">
+            <a-form :model="modalFormState" :label-col="{ span: 24 }">
+              <a-row :gutter="[16, 16]">
+                <a-col :span="12">
+                  <a-form-item label="輸出入タイプ">
+                    <a-select
+                      v-model:value="modalFormState.inputOutputType"
+                      style="width: 100%"
+                    >
+                      <a-select-option value="輸入">輸入</a-select-option>
+                      <a-select-option value="輸出">輸出</a-select-option>
+                    </a-select>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item label="SHIPPER">
+                    <a-select
+                      v-model:value="modalFormState.shipper"
+                      style="width: 100%"
+                    >
+                      <a-select-option value="shipper1"
+                        >shipper1</a-select-option
+                      >
+                      <a-select-option value="shipper2"
+                        >shipper2</a-select-option
+                      >
+                      <a-select-option value="shipper3"
+                        >shipper3</a-select-option
+                      >
+                    </a-select>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item label="BOOKING TYPE">
+                    <a-select
+                      v-model:value="modalFormState.bookingType"
+                      style="width: 100%"
+                    >
+                      <a-select-option value="自社">自社</a-select-option>
+                      <a-select-option value="他社">他社</a-select-option>
+                    </a-select>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item label="BOOKING NO">
+                    <a-input v-model:value="modalFormState.bookingNo" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item label="BOOKING DATE">
+                    <a-date-picker
+                      v-model:value="modalFormState.bookingDate"
+                      style="width: 100%"
+                    />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item label="請求書番号(自社)">
+                    <a-input v-model:value="modalFormState.invoiceNo" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item label="請求書番号(他社)">
+                    <a-input v-model:value="modalFormState.invoiceNoOther" />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+              <a-form-item>
+                <a-button
+                  type="primary"
+                  :loading="pageState.loading"
+                  @click="
+                    () => {
+                      pageState.loading = true;
+                      submit(modalFormState, setOpen);
+                    }
+                  "
+                  >确认</a-button
+                >
+                <a-button
+                  type="primary"
+                  style="margin-left: 10px"
+                  @click="
+                    () => {
+                      Object.keys(modalFormState).forEach(
+                        (key) => (modalFormState[key] = '')
+                      );
+                    }
+                  "
+                  >クリア</a-button
+                >
+              </a-form-item>
+            </a-form>
+          </template>
+        </CommonModal>
+        <a-button type="primary" style="float: right; margin-right: 10px">
+          <template #icon><SearchOutlined /></template>
+          検索
+        </a-button>
+      </div>
+      <div
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 200px;
+        "
+        v-if="pageState.tableLoading"
+      >
+        <a-spin size="large" />
+      </div>
       <a-table
+        v-else
         :columns="columns"
         :dataSource="pageState.dataSource"
         :rowSelection="rowSelection"
         size="middle"
       >
-        <template #title>
-          <div style="padding-bottom: 10px; overflow: hidden">
-            <CommonModal title="新規" :width="800">
-              <template #visibleControl="{ setOpen }">
-                <a-button
-                  type="primary"
-                  @click="
-                    () => {
-                      pageState.loading = false;
-                      setOpen(true);
-                    }
-                  "
-                  style="float: right; margin-right: 10px"
-                >
-                  <template #icon><plus-outlined /></template>
-                  新規
-                </a-button>
-              </template>
-              <template #content="{ setOpen, modalFormState }">
-                <a-form :model="modalFormState" :label-col="{ span: 24 }">
-                  <a-row :gutter="[16, 16]">
-                    <a-col :span="12">
-                      <a-form-item label="輸出入タイプ">
-                        <a-select
-                          v-model:value="modalFormState.inputOutputType"
-                          style="width: 100%"
-                        >
-                          <a-select-option value="輸入">輸入</a-select-option>
-                          <a-select-option value="輸出">輸出</a-select-option>
-                        </a-select>
-                      </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                      <a-form-item label="SHIPPER">
-                        <a-select
-                          v-model:value="modalFormState.shipper"
-                          style="width: 100%"
-                        >
-                          <a-select-option value="shipper1"
-                            >shipper1</a-select-option
-                          >
-                          <a-select-option value="shipper2"
-                            >shipper2</a-select-option
-                          >
-                          <a-select-option value="shipper3"
-                            >shipper3</a-select-option
-                          >
-                        </a-select>
-                      </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                      <a-form-item label="BOOKING TYPE">
-                        <a-select
-                          v-model:value="modalFormState.bookingType"
-                          style="width: 100%"
-                        >
-                          <a-select-option value="自社">自社</a-select-option>
-                          <a-select-option value="他社">他社</a-select-option>
-                        </a-select>
-                      </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                      <a-form-item label="BOOKING NO">
-                        <a-input v-model:value="modalFormState.bookingNo" />
-                      </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                      <a-form-item label="BOOKING DATE">
-                        <a-date-picker
-                          v-model:value="modalFormState.bookingDate"
-                          style="width: 100%"
-                        />
-                      </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                      <a-form-item label="請求書番号(自社)">
-                        <a-input v-model:value="modalFormState.invoiceNo" />
-                      </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                      <a-form-item label="請求書番号(他社)">
-                        <a-input
-                          v-model:value="modalFormState.invoiceNoOther"
-                        />
-                      </a-form-item>
-                    </a-col>
-                  </a-row>
-                  <a-form-item>
-                    <a-button
-                      type="primary"
-                      :loading="pageState.loading"
-                      @click="
-                        () => {
-                          pageState.loading = true;
-                          submit(modalFormState, setOpen);
-                        }
-                      "
-                      >确认</a-button
-                    >
-                    <a-button
-                      type="primary"
-                      style="margin-left: 10px"
-                      @click="
-                        () => {
-                          Object.keys(modalFormState).forEach(
-                            (key) => (modalFormState[key] = '')
-                          );
-                        }
-                      "
-                      >クリア</a-button
-                    >
-                  </a-form-item>
-                </a-form>
-              </template>
-            </CommonModal>
-            <a-button type="primary" style="float: right; margin-right: 10px">
-              <template #icon><SearchOutlined /></template>
-              検索
-            </a-button>
-          </div>
-        </template>
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-badge color="#108ee9" text="正常" status="processing" />

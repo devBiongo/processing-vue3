@@ -10,6 +10,7 @@ import { useRouter } from "vue-router";
 import { encrypt, decrypt } from "@/utils/jsencrypt";
 import { setItem, getItem, removeItem } from "@/utils/cookie";
 import { removeToken, setToken } from "@/utils/auth";
+import { message } from "ant-design-vue";
 
 export default defineComponent({
   components: {
@@ -19,6 +20,7 @@ export default defineComponent({
   },
   setup() {
     const formState = reactive({
+      aaa: 1,
       captchaEnabled: true,
       loading: false,
       codeUrl: "",
@@ -69,10 +71,11 @@ export default defineComponent({
         formState.loading = false;
       });
     };
-    return { formState, getCodeImg, onFinish };
+    return { formState, getCodeImg, onFinish,message };
   },
 });
 </script>
+
 
 <template>
   <div class="login">

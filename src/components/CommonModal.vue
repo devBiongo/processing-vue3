@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 
 const props = defineProps({
   title: { type: String, default: () => "no title" },
   width: { type: Number, default: () => 800 },
   record: { type: Object, default: () => ({}) },
 });
-const modalFormState = reactive(props.record);
+let modalFormState = reactive(JSON.parse(JSON.stringify(props.record)));
 const open = ref<boolean>(false);
 const setOpen = (visible?: boolean) => {
   if (visible === undefined) {
@@ -15,6 +15,11 @@ const setOpen = (visible?: boolean) => {
     open.value = visible;
   }
 };
+watch(open, newValue => {
+  if(newValue){
+    modalFormState = reactive(JSON.parse(JSON.stringify(props.record)));
+  }
+});
 </script>
 
 <template>

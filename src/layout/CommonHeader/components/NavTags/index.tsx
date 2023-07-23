@@ -24,7 +24,7 @@ const NavTags = defineComponent({
             }}
           >
             {navTag.label}
-            {navTag.key!=='/user/home' && (
+            {navTag.key!=='/wf/home' && (
               <CloseOutlined
                 class="icon"
                 onClick={(e) => {

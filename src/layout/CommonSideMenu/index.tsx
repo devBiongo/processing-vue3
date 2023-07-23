@@ -28,14 +28,14 @@ const CommonSideMenu = defineComponent({
                 label: 'システム',
                 children: [
                     {
-                        key: '/wf/manage',
-                        icon: <UserOutlined style={{ fontSize: '18px' }} />,
-                        label: 'ユーザー管理',
-                    },
-                    {
                         key: '/wf/company',
                         icon: <UserOutlined style={{ fontSize: '18px' }} />,
                         label: '会社管理',
+                    },
+                    {
+                        key: '/wf/manage',
+                        icon: <UserOutlined style={{ fontSize: '18px' }} />,
+                        label: '会員管理',
                     },
                 ]
             }
