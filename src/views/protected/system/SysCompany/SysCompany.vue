@@ -53,7 +53,7 @@ const columns = [
 const pageState = reactive({
   loading: false,
   tableLoading: false,
-  queries: { companyType: "船运" } as any,
+  queries: { companyType: "货代" } as any,
   data: { companyType: "" } as any,
   dataSource: [],
 });
@@ -167,7 +167,8 @@ const rules: Record<string, Rule[]> = {
           name="type"
           v-model:value="pageState.queries.companyType"
         >
-          <a-radio value="货运">货运</a-radio>
+          <a-radio value="货代">货代</a-radio>
+          <a-radio value="拖车">拖车</a-radio>
           <a-radio value="船运">船运</a-radio>
           <a-radio value="海关">海关</a-radio>
           <a-radio value="保险">保险</a-radio>
@@ -217,7 +218,8 @@ const rules: Record<string, Rule[]> = {
                       defaultValue="船运"
                     >
                       <a-select-option value=""></a-select-option>
-                      <a-select-option value="货运">货运</a-select-option>
+                      <a-select-option value="货代">货代</a-select-option>
+                      <a-select-option value="拖车">拖车</a-select-option>
                       <a-select-option value="船运">船运</a-select-option>
                       <a-select-option value="海关">海关</a-select-option>
                       <a-select-option value="保险">保险</a-select-option>
@@ -303,7 +305,7 @@ const rules: Record<string, Rule[]> = {
         size="middle"
         style="min-height: 600px"
       >
-        <template #bodyCell="{ column,record }">
+        <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'actions'">
             <CommonModal title="編集" :width="800" :record="record">
               <template #visibleControl="{ setOpen }">
@@ -335,7 +337,8 @@ const rules: Record<string, Rule[]> = {
                           defaultValue="船运"
                         >
                           <a-select-option value=""></a-select-option>
-                          <a-select-option value="货运">货运</a-select-option>
+                          <a-select-option value="货代">货代</a-select-option>
+                          <a-select-option value="拖车">拖车</a-select-option>
                           <a-select-option value="船运">船运</a-select-option>
                           <a-select-option value="海关">海关</a-select-option>
                           <a-select-option value="保险">保险</a-select-option>
@@ -375,7 +378,7 @@ const rules: Record<string, Rule[]> = {
                       >更新</a-button
                     >
                     <a-button
-                    danger
+                      danger
                       type="primary"
                       style="margin-left: 10px"
                       @click="

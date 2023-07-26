@@ -2,6 +2,7 @@ import { message } from "ant-design-vue";
 import axios, { AxiosError } from "axios";
 // import qs from "qs";
 import { getToken } from "./auth";
+import { appNotification } from "./notification";
 
 const baseUrl = "/api";
 const instance = axios.create({
@@ -45,7 +46,8 @@ instance.interceptors.response.use(
         error.message = "请求错误(400)";
         break;
       case 401:
-        error.message = "未授权，请重新登录(401)";
+        error.message = "";
+        appNotification("未授权，请重新登录(401)","再ログインしてください！");
         break;
       case 403:
         if (error.response.data) {
@@ -93,25 +95,30 @@ export default {
     return new Promise((resolve) => {
       instance
         .post(url, data)
-        .then((response) =>{
+        .then((response) => {
           resolve(response.data);
         })
         .catch((err) => {
-          message.error(err);
+          if(err){
+            message.error(err);
+          }
           resolve(undefined);
         });
     });
   },
   get(url: string) {
     return new Promise((resolve) => {
-      instance.get(url)
+      instance
+        .get(url)
         .then((response) => {
-          resolve(response.data)
+          resolve(response.data);
         })
         .catch((err) => {
-          message.error(err);
+          if(err){
+            message.error(err);
+          }
           resolve(undefined);
-        })
-    })
+        });
+    });
   },
 };

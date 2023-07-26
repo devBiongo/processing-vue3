@@ -32,12 +32,12 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "manage",
         name: "ユーザー管理",
-        component: () => import("@/views/protected/system/SysUserView.vue"),
+        component: () => import("@/views/protected/system/SysUser/SysUserView.vue"),
       },
       {
         path: "company",
         name: "会社管理",
-        component: () => import("@/views/protected/system/SysCompany.vue"),
+        component: () => import("@/views/protected/system/SysCompany/SysCompany.vue"),
       },
     ],
   },

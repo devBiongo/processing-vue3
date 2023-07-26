@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { DownOutlined, DollarCircleFilled } from "@ant-design/icons-vue";
+import { DownOutlined, DollarCircleFilled ,CustomerServiceFilled} from "@ant-design/icons-vue";
 
 defineProps({
   treeData: { type: null },
-  selectedKeys:  { type: Array },
+  selectedTreeKeys:  { type: Array },
   onSelect: { type: null },
 });
 
@@ -11,16 +11,20 @@ defineProps({
 
 <template>
   <a-tree
-    :selectedKeys="selectedKeys"
+    :selectedKeys="selectedTreeKeys"
     :tree-data="treeData"
     show-icon
     default-expand-all
     @select="onSelect"
+    :expandedKeys="['agency','trailer','ship','insurance','customs']"
   >
     <template #switcherIcon="{ switcherCls }">
       <down-outlined :class="switcherCls" />
     </template>
     <template #icon="{ key }">
+      <template v-if="key === 'agency'">
+        <customer-service-filled  class="icon" />
+      </template>
       <template v-if="key === 'trailer'">
         <font-awesome-icon icon="truck" class="icon" />
       </template>
