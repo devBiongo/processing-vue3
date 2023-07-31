@@ -20,7 +20,7 @@ const NavTags = defineComponent({
             }
             onClick={() => {
               store.selectedKey = navTag.key;
-              router.push(navTag.note?`${navTag.key}?uuid=${navTag.note}`:navTag.key);
+              router.push(navTag.note?`${navTag.key}?cargoId=${navTag.note}`:navTag.key);
             }}
           >
             {navTag.label}
@@ -38,7 +38,7 @@ const NavTags = defineComponent({
                   if (store.selectedKey === navTag.key) {
                     const t = store.navTags[store.navTags.length - 1];
                     store.selectedKey = t.key;
-                    router.push(t.note?`${t.key}?uuid=${t.note}`:t.key);
+                    router.push(t.note?`${t.key}?cargoId=${t.note}`:t.key);
                   }
                 }}
               />

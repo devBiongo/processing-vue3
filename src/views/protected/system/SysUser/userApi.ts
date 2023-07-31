@@ -17,3 +17,12 @@ export const addUser = (params: any) => {
 export const updateUser = (params: any) => {
   return http.post("/system/updateUser",params);
 }
+
+export const deleteUser = (params: any) => {
+  return http.post("/system/deleteUser",params);
+}
+
+export const setUserStatus = (params: any) => {
+  return http.post("/system/setUserStatus",params);
+}
+

@@ -8,26 +8,40 @@ import { fetchAllCompanies, fetchUsers } from "./userApi";
 import { formatSelectItems, formatTreeData, getColumn } from "./userUtils";
 import AddForm from "./AddForm.vue";
 import UpdateForm from "./UpdateForm.vue";
+import { setUserStatus } from "./userApi";
 
 const columns = getColumn();
 const pageState = reactive<any>({
   tableLoading: false,
-  swtichLoading: false,
   dataSource: [],
   selectItems: [],
   treeData: [],
   selectedTreeKeys: [],
 });
-onMounted(() => {
-  pageState.tableLoading = true;
-  fetchUsers().then((data: any) => {
+const freshUsers = (queries: any) => {
+  if (queries === undefined) {
+    queries =
+      pageState.selectedTreeKeys[0] !== undefined
+        ? { deptId: pageState.selectedTreeKeys[0] }
+        : {};
+  }
+  fetchUsers(queries).then((data: any) => {
     pageState.tableLoading = false;
     if (!data) return;
     data.forEach((s: any) => {
       s.ok = s.status === "0" ? true : false;
+      s.loading = false;
     });
     pageState.dataSource = data;
   });
+};
+onMounted(() => {
+  pageState.tableLoading = true;
+  freshUsers(
+    pageState.selectedTreeKeys[0] !== undefined
+      ? { deptId: pageState.selectedTreeKeys[0] }
+      : {}
+  );
   fetchAllCompanies().then((data: any) => {
     if (!data) return;
     pageState.treeData = formatTreeData(data);
@@ -38,14 +52,7 @@ const onSelect = (s: any[]) => {
   if (s.length === 1 && typeof s[0] === "number") {
     pageState.tableLoading = true;
     pageState.selectedTreeKeys = s;
-    fetchUsers({deptId: s[0]}).then((data: any) => {
-      pageState.tableLoading = false;
-      if (!data) return;
-      if (data) pageState.dataSource = data;
-      data.forEach((s: any) => {
-        s.ok = s.status === "0" ? true : false;
-      });
-    });
+    freshUsers({ deptId: s[0] });
   }
 };
 </script>
@@ -63,10 +70,7 @@ const onSelect = (s: any[]) => {
       <template #paneR>
         <div class="paneR-box">
           <div class="search-area">
-            <CommonModal
-              title="新規"
-              :width="800"
-            >
+            <CommonModal title="新規" :width="800">
               <template #visibleControl="{ setOpen }">
                 <a-button
                   type="primary"
@@ -88,6 +92,7 @@ const onSelect = (s: any[]) => {
                 <AddForm
                   :selectItems="pageState.selectItems"
                   :setOpen="setOpen"
+                  :freshUsers="freshUsers"
                 />
               </template>
             </CommonModal>
@@ -146,28 +151,43 @@ const onSelect = (s: any[]) => {
                 />
                 <a-badge color="red" text="禁用" status="success" v-else />
                 <a-switch
-                  v-model:checked="record.ok"
-                  :loading="pageState.swtichLoading"
+                  :checked="record.ok"
+                  :loading="record.loading"
                   style="margin-left: 20px; margin-bottom: 2px"
+                  @change="(e: any)=>{
+                    record.loading = true;
+                    setUserStatus({ username:record.username, status: e?0:1 }).then((data: any) => {
+                      if (data&&data.updates===1){
+                        record.ok = e;
+                      }
+                      record.loading = false;
+                    });
+                  }"
                 />
               </template>
               <template v-else-if="column.key === 'actions'">
-                
-                <CommonModal
-              title="編集"
-              :width="800"
-            >
-              <template #visibleControl="{ setOpen }">
-                <a-button type="link" @click="() => {setOpen(true)}" block>編集</a-button>
-              </template>
-              <template #content="{ setOpen }">
-                <UpdateForm
-                  :selectItems="pageState.selectItems"
-                  :setOpen="setOpen"
-                  :record="record"
-                />
-              </template>
-            </CommonModal>
+                <CommonModal title="編集" :width="800">
+                  <template #visibleControl="{ setOpen }">
+                    <a-button
+                      type="link"
+                      @click="
+                        () => {
+                          setOpen(true);
+                        }
+                      "
+                      block
+                      >編集</a-button
+                    >
+                  </template>
+                  <template #content="{ setOpen }">
+                    <UpdateForm
+                      :selectItems="pageState.selectItems"
+                      :setOpen="setOpen"
+                      :record="record"
+                      :freshUsers="freshUsers"
+                    />
+                  </template>
+                </CommonModal>
               </template>
             </template>
           </a-table>

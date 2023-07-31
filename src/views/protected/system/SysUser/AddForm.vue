@@ -6,6 +6,7 @@ import { addUser } from "./userApi";
 const props = defineProps({
   setOpen: { type: null },
   selectItems: { type: null },
+  freshUsers: { type: null },
 });
 const pageState = reactive<any>({
   formState: {},
@@ -49,11 +50,12 @@ const addSubmit = () => {
       pageState.btnLoading = false;
       if (data && data.inserts === 1) {
         props.setOpen(false);
+        props.freshUsers();
       }
     })
-    .catch((error: any) => {
-      console.log("バリエーションエラー", error);
-    });
+    .catch((error: any)=>{
+      console.warn(error);
+    })
 };
 </script>
 

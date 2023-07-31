@@ -1,97 +1,34 @@
-<script lang="ts">
+<script lang="ts" setup>
 import ContainerTable from "@/components/tables/ContainerTable.vue";
 import AssignmentTable from "@/components/tables/AssignmentTable.vue";
 import ConsignTable from "@/components/tables/ConsignTable.vue";
 import NofityTable from "@/components/tables/NofityTable.vue";
-import { defineComponent, onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import http from "@/utils/request";
-import dayjs from "dayjs";
-import { dateFormat, formatDateToPicker } from "@/utils/common";
+import { fetchCargoById } from "./api";
+import { formatData } from "./util";
 
-export default defineComponent({
-  components: { ContainerTable, AssignmentTable, ConsignTable, NofityTable },
-  setup() {
-    const pageState = reactive<{
-      loading: boolean;
-      formState: any;
-      assignmentData: [];
-      containerData: [];
-      consignData: [];
-      nofityData: [];
-    }>({
-      loading: true,
-      formState: {},
-      assignmentData: [],
-      containerData: [],
-      consignData: [],
-      nofityData: [],
-    });
-    onMounted(() => {
-      const route = useRoute();
-      http
-        .get(`/task/cargo/getLatestCargo/${route.query.uuid}`)
-        .then((data: any) => {
-          if (data) {
-            data.bookingDate = data.bookingDate
-              ? dayjs(
-                  formatDateToPicker(new Date(data.bookingDate)),
-                  dateFormat.common
-                )
-              : undefined;
-            data.departureDate = data.departureDate
-              ? dayjs(
-                  formatDateToPicker(new Date(data.departureDate)),
-                  dateFormat.common
-                )
-              : undefined;
-            data.cyCut = data.cyCut
-              ? dayjs(
-                  formatDateToPicker(new Date(data.cyCut)),
-                  dateFormat.common
-                )
-              : undefined;
-            data.fileCut = data.fileCut
-              ? dayjs(
-                  formatDateToPicker(new Date(data.fileCut)),
-                  dateFormat.common
-                )
-              : undefined;
-            data.openDay = data.openDay
-              ? dayjs(
-                  formatDateToPicker(new Date(data.openDay)),
-                  dateFormat.common
-                )
-              : undefined;
-            data.arrivalDate = data.arrivalDate
-              ? dayjs(
-                  formatDateToPicker(new Date(data.arrivalDate)),
-                  dateFormat.common
-                )
-              : undefined;
-            data.issuedAt = data.issuedAt
-              ? dayjs(
-                  formatDateToPicker(new Date(data.issuedAt)),
-                  dateFormat.common
-                )
-              : undefined;
-            pageState.formState = data;
-            pageState.loading = false;
-          }
-        });
-    });
-    const mode = ref<number>(2);
-    const router = useRouter();
-    return {
-      mode,
-      pageState,
-      router,
-      http,
-    };
-  },
+const pageState = reactive<any>({
+  loading: true,
+  formState: {},
+  assignmentData: [],
+  containerData: [],
+  consignData: [],
+  nofityData: [],
 });
+const route = useRoute();
+onMounted(() => {
+  fetchCargoById(route.query.cargoId).then((data: any) => {
+    pageState.loading = false;
+    if (data) {
+      pageState.formState = formatData(data);
+    }
+  });
+});
+const mode = ref<number>(2);
+const router = useRouter();
 </script>
-
 <template>
   <div class="cargo-container">
     <div

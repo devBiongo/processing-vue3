@@ -21,13 +21,13 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "taskList",
         name: "タスク一覧",
-        component: () => import("@/views/protected/business/CargoList.vue"),
+        component: () => import("@/views/protected/business/CargoList/CargoList.vue"),
       },
       {
         path: "cargoManifest",
         name: "船積確認書",
         component: () =>
-          import("@/views/protected/business/CargoManifest.vue"),
+          import("@/views/protected/business/CargoManifest/CargoManifest.vue"),
       },
       {
         path: "manage",
@@ -68,10 +68,10 @@ router.beforeEach((to, from, next) => {
       store.navTags.push({
         key: to.path,
         label: (findName(to.path) as string) || "",
-        note: `${to.query.uuid || ""}`,
+        note: `${to.query.cargoId || ""}`,
       });
     } else {
-      store.navTags[index].note = `${to.query.uuid || ""}`;
+      store.navTags[index].note = `${to.query.cargoId || ""}`;
     }
     store.selectedKey = to.path;
     next();

@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { Rule } from "ant-design-vue/es/form/interface";
 import { reactive, ref } from "vue";
-import { updateUser } from "./userApi";
+import { deleteUser, updateUser } from "./userApi";
 
 const props = defineProps({
   setOpen: { type: null },
   selectItems: { type: null },
   record: { type: null },
+  freshUsers: { type: null },
 });
 const pageState = reactive<any>({
   formState: props.record,
@@ -27,7 +28,7 @@ const rules: Record<string, Rule[]> = {
   ],
 };
 const formRef = ref();
-const addSubmit = () => {
+const updateSubmit = () => {
   formRef.value
     .validate()
     .then(() => {
@@ -38,11 +39,20 @@ const addSubmit = () => {
       pageState.btnLoading = false;
       if (data && data.updates === 1) {
         props.setOpen(false);
+        props.freshUsers();
       }
     })
-    .catch((error: any) => {
-      console.log("バリエーションエラー", error);
+    .catch((error: any)=>{
+      console.warn(error);
     });
+};
+const deleteSubmit = () => {
+  deleteUser(pageState.formState).then((data: any) => {
+    if (data && data.updates === 1) {
+      props.setOpen(false);
+      props.freshUsers();
+    }
+  });
 };
 </script>
 
@@ -103,17 +113,13 @@ const addSubmit = () => {
       <a-button
         type="primary"
         :loading="pageState.btnLoading"
-        @click="addSubmit"
+        @click="updateSubmit"
         >确认</a-button
       >
       <a-button
         type="primary"
         style="margin-left: 10px"
-        @click="
-          () => {
-            pageState.formState = {};
-          }
-        "
+        @click="deleteSubmit"
         danger
         >削除</a-button
       >
