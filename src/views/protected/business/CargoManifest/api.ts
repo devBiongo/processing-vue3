@@ -18,3 +18,7 @@ export const fetchCargoById = (cargoId: any) => {
     ],
   });
 };
+
+export const updateCargo = (cargoId: any) => {
+  return http.post("/task/cargo/updateCargo",cargoId)
+}

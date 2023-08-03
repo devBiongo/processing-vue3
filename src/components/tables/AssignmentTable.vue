@@ -1,248 +1,173 @@
-
-<script lang="ts">
-import { PlusOutlined } from "@ant-design/icons-vue";
+<script lang="ts" setup>
+import { UnwrapRef, reactive, ref } from "vue";
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  EditOutlined,
+  CheckOutlined,
+} from "@ant-design/icons-vue";
 import { nanoid } from "nanoid";
-import { defineComponent, toRefs } from "vue";
-import { formatDatePicker } from "@/utils/common";
-import CommonModal from "../CommonModal.vue";
+import { deepClone } from "@/utils/common";
 
-
-const columns = [
-  { title: "日時", dataIndex: "date", key: "date" },
-  { title: "会社", dataIndex: "companyName", key: "companyName" },
-  { title: "住所", dataIndex: "address", key: "address" },
-  { title: "担当者", dataIndex: "contactPerson", key: "contactPerson" },
-  { title: "連絡Tel", dataIndex: "teleNum", key: "teleNum" },
+const editableData: UnwrapRef<Record<string, any>> = reactive({});
+const dataSource = ref([
   {
-    title: "Action",
-    dataIndex: "action",
-    key: "action",
-    fixed: "right",
-    width: 230,
+    key: nanoid(),
+    companyName: "",
+    contactPerson: "",
+    teleNum: "",
+    date: "",
+    address: "",
+    note: "",
   },
-];
-
-export default defineComponent({
-  props: {
-    dataSourse: { type: Array, default: () => [] },
-  },
-  components: {
-    CommonModal,
-    PlusOutlined,
-  },
-  setup(props) {
-    const { dataSourse } = toRefs(props);
-    return {
-      data: dataSourse,
-      columns,
-      nanoid,
-      formatDatePicker,
-    };
-  },
-});
+]);
+function addRecord() {
+  dataSource.value.push({
+    key: nanoid(),
+    companyName: "",
+    contactPerson: "",
+    teleNum: "",
+    date: "",
+    address: "",
+    note: "",
+  });
+}
+function deleteRecord(key: string) {
+  dataSource.value.splice(
+    dataSource.value.findIndex((s) => (s.key = key)),
+    1
+  );
+}
+function edit(key: string) {
+  editableData[key] = deepClone(
+    dataSource.value.filter((item) => key === item.key)[0]
+  );
+}
+function save(key: string) {
+  Object.assign(
+    dataSource.value.filter((item) => key === item.key)[0],
+    editableData[key]
+  );
+  delete editableData[key];
+}
 </script>
 
 <template>
-  <a-table
-    :columns="columns"
-    :data-source="data"
-    :pagination="false"
-    bordered
-  >
-    <template #title>
-      <a-row justify="end">
-        <a-col :span="2">
-          <common-modal title="新規" :width="600">
-            <template #visibleControl="{ setOpen }">
-              <a-button
-                type="primary"
-                @click="
-                  () => {
-                    setOpen(true);
-                  }
-                "
-              >
-                <template #icon>
-                  <plus-outlined />
-                </template>
-                追加
-              </a-button>
-            </template>
-            <template #content="{ setOpen, modalFormState }">
-              <a-form :model="modalFormState" :label-col="{ span: 24 }">
-                <a-row :gutter="[16, 16]">
-                  <a-col :span="12">
-                    <a-form-item label="日時">
-                      <a-date-picker
-                        v-model:value="modalFormState.date"
-                        style="width: 100%"
-                        show-time
-                      />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-form-item label="会社">
-                      <a-input v-model:value="modalFormState.companyName" />
-                    </a-form-item>
-                  </a-col>
-
-                  
-
-                  <a-col :span="12">
-                    <a-form-item label="担当者">
-                      <a-input v-model:value="modalFormState.contactPerson" />
-                    </a-form-item>
-                  </a-col>
-
-                  <a-col :span="12">
-                    <a-form-item label="連絡Tel">
-                      <a-input v-model:value="modalFormState.teleNum" />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="24">
-                    <a-form-item label="住所">
-                      <a-textarea
-                        :rows="4"
-                        v-model:value="modalFormState.address"
-                      />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="24">
-                    <a-form-item label="備考">
-                      <a-textarea
-                        :rows="4"
-                        v-model:value="modalFormState.precautions"
-                      />
-                    </a-form-item>
-                  </a-col>
-                </a-row>
-                <a-form-item>
-                  <a-button
-                    type="primary"
-                    @click="
-                      () => {
-                        const newObj = Object.assign({}, modalFormState);
-                        Object.keys(modalFormState).forEach((key) => {
-                          modalFormState[key] = null;
-                        });
-                        newObj.key = nanoid();
-                        data.push(newObj);
-                        setOpen(false);
-                      }
-                    "
-                    >确认</a-button
-                  >
-                </a-form-item>
-              </a-form>
-            </template>
-          </common-modal>
-        </a-col>
-      </a-row>
-    </template>
-    <template #bodyCell="{ column, record, index }">
-      <template v-if="column.key === 'date'">
-        {{ formatDatePicker(record.date) }}
-      </template>
-      <template v-if="column.key === 'action'">
-        <common-modal title="編集" :width="1000" :record="record">
-          <template #visibleControl="{ setOpen }">
-            <a-button
-              type="link"
-              @click="
-                () => {
-                  setOpen(true);
-                }
-              "
-              >編集</a-button
-            >
-            <a-button
-              type="link"
-              @click="
-                () => {
-                  const newObj = Object.assign({}, record);
-                  newObj.key = nanoid();
-                  data.push(newObj)
-                }
-              "
-              >コピー</a-button
-            >
-            <a-button
-              @click="
-                () => {
-                  data.splice(index,1);
-                }
-              "
-              type="link"
-              danger
-              >削除</a-button
-            >
+  <div class="container">
+    <a-descriptions
+      bordered
+      size="default"
+      v-for="record in dataSource"
+      :key="record.key"
+    >
+      <template #extra>
+        <a-button
+          v-if="editableData[record.key]"
+          style="transform: translateY(10px); margin-right: 10px"
+          type="primary"
+          shape="circle"
+          @click="save(record.key)"
+        >
+          <template #icon>
+            <check-outlined />
           </template>
-          <template #content="{ setOpen, modalFormState }">
-            <a-form :model="modalFormState" :label-col="{ span: 24 }">
-              <a-row :gutter="[16, 16]">
-                <a-col :span="12">
-                    <a-form-item label="日時">
-                      <a-date-picker
-                        v-model:value="modalFormState.date"
-                        style="width: 100%"
-                      />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-form-item label="会社">
-                      <a-input v-model:value="modalFormState.companyName" />
-                    </a-form-item>
-                  </a-col>
-
-                  <a-col :span="12">
-                    <a-form-item label="住所">
-                      <a-input v-model:value="modalFormState.address" />
-                    </a-form-item>
-                  </a-col>
-
-                  <a-col :span="12">
-                    <a-form-item label="担当者">
-                      <a-input v-model:value="modalFormState.contactPerson" />
-                    </a-form-item>
-                  </a-col>
-
-                  <a-col :span="12">
-                    <a-form-item label="連絡Tel">
-                      <a-input v-model:value="modalFormState.teleNum" />
-                    </a-form-item>
-                  </a-col>
-                  
-                  <a-col :span="24">
-                    <a-form-item label="備考">
-                      <a-textarea
-                        :rows="4"
-                        v-model:value="modalFormState.precautions"
-                      />
-                    </a-form-item>
-                  </a-col>
-              </a-row>
-              <a-form-item>
-                <a-button
-                  type="primary"
-                  @click="
-                    () => {
-                      setOpen(false);
-                    }
-                  "
-                  >修正完了</a-button
-                >
-              </a-form-item>
-            </a-form>
+        </a-button>
+        <a-button
+          v-else
+          style="transform: translateY(10px); margin-right: 10px"
+          @click="edit(record.key)"
+          shape="circle"
+        >
+          <template #icon>
+            <edit-outlined />
           </template>
-        </common-modal>
+        </a-button>
+        <a-button
+          v-if="dataSource.length > 1"
+          style="transform: translateY(10px)"
+          shape="circle"
+          @click="deleteRecord(record.key)"
+        >
+          <template #icon>
+            <delete-outlined />
+          </template>
+        </a-button>
       </template>
-    </template>
-    <template #expandedRowRender="{ record }">
-      <p style="margin: 0">
-        {{ record.precautions }}
-      </p>
-    </template>
-  </a-table>
+      <a-descriptions-item label="会社">
+        <a-input
+          v-if="editableData[record.key]"
+          v-model:value="editableData[record.key].companyName"
+          style="margin: -5px 0"
+        />
+        <template v-else>
+          {{ record.companyName }}
+        </template>
+      </a-descriptions-item>
+      <a-descriptions-item label="担当者">
+        <a-input
+          v-if="editableData[record.key]"
+          v-model:value="editableData[record.key].contactPerson"
+          style="margin: -5px 0"
+        />
+        <template v-else>
+          {{ record.contactPerson }}
+        </template>
+      </a-descriptions-item>
+      <a-descriptions-item label="連絡Tel">
+        <a-input
+          v-if="editableData[record.key]"
+          v-model:value="editableData[record.key].teleNum"
+          style="margin: -5px 0"
+        />
+        <template v-else>
+          {{ record.teleNum }}
+        </template>
+      </a-descriptions-item>
+      <a-descriptions-item label="日時">
+        <a-input
+          v-if="editableData[record.key]"
+          v-model:value="editableData[record.key].date"
+          style="margin: -5px 0"
+        />
+        <template v-else>
+          {{ record.date }}
+        </template>
+      </a-descriptions-item>
+      <a-descriptions-item label="住所" :span="2">
+        <a-input
+          v-if="editableData[record.key]"
+          v-model:value="editableData[record.key].address"
+          style="margin: -5px 0"
+        />
+        <template v-else>
+          {{ record.address }}
+        </template>
+      </a-descriptions-item>
+      <a-descriptions-item label="備考" :span="3">
+        <a-textarea
+          v-if="editableData[record.key]"
+          v-model:value="editableData[record.key].note"
+          style="margin: -5px 0"
+        />
+        <template v-else>
+          {{ record.note }}
+        </template>
+      </a-descriptions-item>
+    </a-descriptions>
+    <a-button
+      type="dashed"
+      block
+      style="margin: 20px 0; background-color: transparent"
+      @click="addRecord"
+    >
+      <PlusOutlined />
+      追加
+    </a-button>
+  </div>
 </template>
 
-
+<style scoped>
+.container {
+  padding: 0 10px;
+}
+</style>

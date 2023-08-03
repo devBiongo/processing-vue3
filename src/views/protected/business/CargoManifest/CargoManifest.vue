@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import ContainerTable from "@/components/tables/ContainerTable.vue";
-import AssignmentTable from "@/components/tables/AssignmentTable.vue";
 import ConsignTable from "@/components/tables/ConsignTable.vue";
 import NofityTable from "@/components/tables/NofityTable.vue";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import http from "@/utils/request";
-import { fetchCargoById } from "./api";
+import { fetchCargoById, updateCargo } from "./api";
 import { formatData } from "./util";
+import AppDescription from "@/components/descriptions/AppDescription.vue";
 
 const pageState = reactive<any>({
   loading: true,
@@ -28,6 +28,37 @@ onMounted(() => {
 });
 const mode = ref<number>(2);
 const router = useRouter();
+
+const config = {
+  columns: [
+    { label: "会社", dataIndex: "companyName" },
+    { label: "担当者", dataIndex: "contactPerson" },
+    { label: "連絡Tel", dataIndex: "teleNum" },
+    { label: "日時", dataIndex: "date" },
+    { label: "住所", dataIndex: "address", span: 2 },
+    { label: "備考", dataIndex: "note", span: 3 },
+  ],
+  dataSource: [
+    {
+      companyName: "",
+      contactPerson: "",
+      teleNum: "",
+      date: "",
+      address: "",
+      note: "",
+    },
+  ],
+};
+
+const childData = ref();
+function update() {
+  console.log((childData.value as any).datasource);
+  pageState.loading = true;
+  updateCargo(pageState.formState).then((data: any) => {
+    pageState.loading = false;
+    if (data) router.push("/wf/taskList");
+  });
+}
 </script>
 <template>
   <div class="cargo-container">
@@ -386,10 +417,7 @@ const router = useRouter();
             >Nofity情報</span
           >
         </div>
-        <assignment-table
-          v-if="mode === 1"
-          :dataSourse="pageState.assignmentData"
-        />
+        <AppDescription v-if="mode === 1" :config="config" ref="childData" />
         <container-table
           v-if="mode === 2"
           :dataSourse="pageState.containerData"
@@ -400,23 +428,7 @@ const router = useRouter();
       <a-row style="margin-top: 50px">
         <a-col>
           <a-affix :offset-bottom="30">
-            <a-button
-              type="primary"
-              size="large"
-              @click="
-                () => {
-                  pageState.loading = true;
-                  http
-                    .post('/task/cargo/updateCargoManifest', pageState.formState)
-                    .then((data: any) => {
-                      if(data&&data.updates>0){
-                        router.push('/wf/taskList');
-                      }else{
-                        pageState.loading = false;
-                      }
-                    });
-                }
-              "
+            <a-button type="primary" size="large" @click="update"
               >更新</a-button
             >
           </a-affix>

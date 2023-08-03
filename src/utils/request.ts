@@ -47,7 +47,7 @@ instance.interceptors.response.use(
         break;
       case 401:
         error.message = "";
-        appNotification("未授权，请重新登录(401)","再ログインしてください！");
+        appNotification("401","再ログインしてください！");
         break;
       case 403:
         if (error.response.data) {
