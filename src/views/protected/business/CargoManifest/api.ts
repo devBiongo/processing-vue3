@@ -1,7 +1,7 @@
 import http from "@/utils/request";
 
 export const fetchCargoById = (cargoId: any) => {
-  return http.post("/task/cargo/fetchCargos", {
+  return http.post("/task/cargo/fetchOneCargo", {
     orderField: "subNo",
     asc: false,
     fields: [
@@ -22,3 +22,5 @@ export const fetchCargoById = (cargoId: any) => {
 export const updateCargo = (cargoId: any) => {
   return http.post("/task/cargo/updateCargo",cargoId)
 }
+
+

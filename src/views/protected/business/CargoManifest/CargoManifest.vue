@@ -1,14 +1,23 @@
 <script lang="ts" setup>
-import ContainerTable from "@/components/tables/ContainerTable.vue";
-import ConsignTable from "@/components/tables/ConsignTable.vue";
-import NofityTable from "@/components/tables/NofityTable.vue";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import http from "@/utils/request";
 import { fetchCargoById, updateCargo } from "./api";
-import { formatData } from "./util";
+import {
+  formatData,
+  useConsign,
+  useContainer,
+  useNotify,
+  useAssignment,
+} from "./util";
 import AppDescription from "@/components/descriptions/AppDescription.vue";
+import { deepClone } from "@/utils/common";
 
+const route = useRoute();
+const router = useRouter();
+const assignmentRef = ref(null);
+const containerRef = ref(null);
+const consignRef = ref(null);
+const notifyRef = ref(null);
 const pageState = reactive<any>({
   loading: true,
   formState: {},
@@ -16,48 +25,40 @@ const pageState = reactive<any>({
   containerData: [],
   consignData: [],
   nofityData: [],
+  mode: 1,
+  assignmentList: undefined,
+  containerList: undefined,
+  consignList: undefined,
+  notifyList: undefined,
 });
-const route = useRoute();
 onMounted(() => {
   fetchCargoById(route.query.cargoId).then((data: any) => {
     pageState.loading = false;
     if (data) {
       pageState.formState = formatData(data);
+      pageState.assignmentList = useAssignment(data.assignmentList);
+      pageState.containerList = useContainer(data.containerList);
+      pageState.consignList = useConsign(data.consignList);
+      pageState.notifyList = useNotify(data.notifyList);
     }
   });
 });
-const mode = ref<number>(2);
-const router = useRouter();
-
-const config = {
-  columns: [
-    { label: "会社", dataIndex: "companyName" },
-    { label: "担当者", dataIndex: "contactPerson" },
-    { label: "連絡Tel", dataIndex: "teleNum" },
-    { label: "日時", dataIndex: "date" },
-    { label: "住所", dataIndex: "address", span: 2 },
-    { label: "備考", dataIndex: "note", span: 3 },
-  ],
-  dataSource: [
-    {
-      companyName: "",
-      contactPerson: "",
-      teleNum: "",
-      date: "",
-      address: "",
-      note: "",
-    },
-  ],
-};
-
-const childData = ref();
 function update() {
-  console.log((childData.value as any).datasource);
   pageState.loading = true;
-  updateCargo(pageState.formState).then((data: any) => {
+  const param = {
+    ...pageState.formState,
+    assignments: deepClone((assignmentRef.value as any).dataSource),
+    containers: deepClone((containerRef.value as any).dataSource),
+    consigns: deepClone((consignRef.value as any).dataSource),
+    notifies: deepClone((notifyRef.value as any).dataSource),
+  };
+  updateCargo(param).then((data: any) => {
     pageState.loading = false;
     if (data) router.push("/wf/taskList");
   });
+}
+function switchModel(mode: number) {
+  pageState.mode = mode;
 }
 </script>
 <template>
@@ -77,7 +78,7 @@ function update() {
       class="form"
       :layout="pageState.formState.layout"
       v-bind="{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }"
-      v-if="!pageState.loading"
+      :style="{ display: pageState.loading ? 'none' : 'block' }"
     >
       <div class="page-header">
         <a-row>
@@ -381,49 +382,50 @@ function update() {
       <div class="switch-form">
         <div class="nav-area">
           <span
-            :class="mode === 1 ? 'selected' : ''"
-            @click="
-              () => {
-                mode = 1;
-              }
-            "
+            :class="pageState.mode === 1 ? 'selected' : ''"
+            @click="switchModel(1)"
             >作業内容</span
           >
           <span
-            :class="mode === 2 ? 'selected' : ''"
-            @click="
-              () => {
-                mode = 2;
-              }
-            "
+            :class="pageState.mode === 2 ? 'selected' : ''"
+            @click="switchModel(2)"
             >コンテナ情報</span
           >
           <span
-            :class="mode === 3 ? 'selected' : ''"
-            @click="
-              () => {
-                mode = 3;
-              }
-            "
+            :class="pageState.mode === 3 ? 'selected' : ''"
+            @click="switchModel(3)"
             >Consign情報</span
           >
           <span
-            :class="mode === 4 ? 'selected' : ''"
-            @click="
-              () => {
-                mode = 4;
-              }
-            "
+            :class="pageState.mode === 4 ? 'selected' : ''"
+            @click="switchModel(4)"
             >Nofity情報</span
           >
         </div>
-        <AppDescription v-if="mode === 1" :config="config" ref="childData" />
-        <container-table
-          v-if="mode === 2"
-          :dataSourse="pageState.containerData"
+        <AppDescription
+          v-if="pageState.assignmentList"
+          :style="{ display: pageState.mode === 1 ? 'block' : 'none' }"
+          :config="pageState.assignmentList"
+          ref="assignmentRef"
         />
-        <consign-table v-if="mode === 3" :dataSourse="pageState.consignData" />
-        <nofity-table v-if="mode === 4" :dataSourse="pageState.nofityData" />
+        <AppDescription
+          v-if="pageState.containerList"
+          :style="{ display: pageState.mode === 2 ? 'block' : 'none' }"
+          :config="pageState.containerList"
+          ref="containerRef"
+        />
+        <AppDescription
+          v-if="pageState.consignList"
+          :style="{ display: pageState.mode === 3 ? 'block' : 'none' }"
+          :config="pageState.consignList"
+          ref="consignRef"
+        />
+        <AppDescription
+          v-if="pageState.notifyList"
+          :style="{ display: pageState.mode === 4 ? 'block' : 'none' }"
+          :config="pageState.notifyList"
+          ref="notifyRef"
+        />
       </div>
       <a-row style="margin-top: 50px">
         <a-col>
@@ -439,13 +441,7 @@ function update() {
               type="primary"
               size="large"
               @click="
-                () => {
-                  http
-                    .get('/file/pdf/download')
-                    .then((data: any) => {
-                      
-                    });
-                }
+                () => {}
               "
               >出力</a-button
             >

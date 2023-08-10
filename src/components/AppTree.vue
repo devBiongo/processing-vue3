@@ -16,7 +16,7 @@ defineProps({
     show-icon
     default-expand-all
     @select="onSelect"
-    :expandedKeys="['agency','trailer','ship','insurance','customs']"
+    :expandedKeys="['agency','trailer','ship','shipper','customs']"
   >
     <template #switcherIcon="{ switcherCls }">
       <down-outlined :class="switcherCls" />
@@ -34,7 +34,7 @@ defineProps({
       <template v-else-if="key === 'customs'">
         <font-awesome-icon icon="shield" class="icon" />
       </template>
-      <template v-else-if="key === 'insurance'">
+      <template v-else-if="key === 'shipper'">
         <dollar-circle-filled class="icon" />
       </template>
     </template>

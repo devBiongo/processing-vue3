@@ -9,7 +9,6 @@ import {
 import { nanoid } from "nanoid";
 import { deepClone } from "../../utils/common";
 
-
 const props = defineProps({
   config: {
     type: Object as () => { columns: any[]; dataSource: any[] },
@@ -17,30 +16,44 @@ const props = defineProps({
   },
 });
 const dataSource = ref(
-  deepClone(props.config.dataSource).map((record) => ({
+  deepClone(
+    (props.config.dataSource &&
+      props.config.dataSource[0] &&
+      props.config.dataSource) || [{}]
+  ).map((record: any) => ({
     ...record,
-    key: nanoid(),
+    $key: nanoid(),
   }))
 );
-defineExpose({dataSource})
+
+defineExpose({ dataSource });
 const editableData: UnwrapRef<Record<string, any>> = reactive({});
+// 追加
 function addRecord() {
-  dataSource.value.push({ ...deepClone(dataSource.value[0]), key: nanoid() });
+  dataSource.value.push({
+    ...Object.fromEntries(
+      Object.keys(dataSource.value[0]).map((key) => [key, ""])
+    ),
+    $key: nanoid(),
+  });
 }
+// 删除
 function deleteRecord(key: string) {
   dataSource.value.splice(
-    dataSource.value.findIndex((s) => s.key === key),
+    dataSource.value.findIndex((item: any) => item.$key === key),
     1
   );
 }
+// 编辑
 function edit(key: string) {
   editableData[key] = deepClone(
-    dataSource.value.filter((item) => key === item.key)[0]
+    dataSource.value.filter((item: any) => item.$key === key)[0]
   );
 }
+// 保存
 function save(key: string) {
   Object.assign(
-    dataSource.value.filter((item) => key === item.key)[0],
+    dataSource.value.filter((item: any) => item.$key === key)[0],
     editableData[key]
   );
   delete editableData[key];
@@ -52,16 +65,26 @@ function save(key: string) {
     <a-descriptions
       bordered
       size="default"
-      v-for="record in dataSource"
-      :key="record.key"
+      v-for="(item, index) in dataSource"
+      :key="item.$key"
     >
+      <template #title>
+        <span
+          style="
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 16px;
+          "
+          >{{ index + 1 }}</span
+        >
+      </template>
       <template #extra>
         <a-button
-          v-if="editableData[record.key]"
+          v-if="editableData[item.$key]"
           style="transform: translateY(10px); margin-right: 10px"
           type="primary"
           shape="circle"
-          @click="save(record.key)"
+          @click="save(item.$key)"
         >
           <template #icon>
             <check-outlined />
@@ -70,7 +93,7 @@ function save(key: string) {
         <a-button
           v-else
           style="transform: translateY(10px); margin-right: 10px"
-          @click="edit(record.key)"
+          @click="edit(item.$key)"
           shape="circle"
         >
           <template #icon>
@@ -80,7 +103,7 @@ function save(key: string) {
         <a-popconfirm
           v-if="dataSource.length > 1"
           title="削除してよろしいですか？"
-          @confirm="deleteRecord(record.key)"
+          @confirm="deleteRecord(item.$key)"
         >
           <a-button style="transform: translateY(10px)" shape="circle">
             <template #icon>
@@ -95,19 +118,19 @@ function save(key: string) {
         :key="col.dataIndex"
         :span="col.span ? col.span : 1"
       >
-        <template v-if="editableData[record.key]">
+        <template v-if="editableData[item.$key]">
           <a-input
             v-if="col.span !== 3"
-            v-model:value="editableData[record.key][col.dataIndex]"
+            v-model:value="editableData[item.$key][col.dataIndex]"
             style="margin: -5px 0"
           />
           <a-textarea
             v-else
-            v-model:value="editableData[record.key][col.dataIndex]"
+            v-model:value="editableData[item.$key][col.dataIndex]"
           />
         </template>
         <template v-else>
-          {{ record[col.dataIndex] }}
+          {{ item[col.dataIndex] }}
         </template>
       </a-descriptions-item>
     </a-descriptions>

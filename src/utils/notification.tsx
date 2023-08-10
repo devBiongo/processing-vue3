@@ -11,7 +11,7 @@ export const appNotification = (message: string, description: string) => {
           location.reload();
         }}
       >
-        GoLogin
+        再ログイン
       </Button>
     ),
     message,

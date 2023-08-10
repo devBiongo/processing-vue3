@@ -167,11 +167,11 @@ const rules: Record<string, Rule[]> = {
           name="type"
           v-model:value="pageState.queries.companyType"
         >
+          <a-radio value="shipper">シーパー</a-radio>
           <a-radio value="货代">货代</a-radio>
           <a-radio value="拖车">拖车</a-radio>
           <a-radio value="船运">船运</a-radio>
           <a-radio value="海关">海关</a-radio>
-          <a-radio value="保险">保险</a-radio>
         </a-radio-group>
       </li>
       <li>
@@ -218,11 +218,11 @@ const rules: Record<string, Rule[]> = {
                       defaultValue="船运"
                     >
                       <a-select-option value=""></a-select-option>
+                      <a-select-option value="shipper">シッパー</a-select-option>
                       <a-select-option value="货代">货代</a-select-option>
                       <a-select-option value="拖车">拖车</a-select-option>
                       <a-select-option value="船运">船运</a-select-option>
                       <a-select-option value="海关">海关</a-select-option>
-                      <a-select-option value="保险">保险</a-select-option>
                     </a-select>
                   </a-form-item>
                 </a-col>

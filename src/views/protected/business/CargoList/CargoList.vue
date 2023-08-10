@@ -1,18 +1,27 @@
 <script lang="ts" setup>
-import { SearchOutlined } from "@ant-design/icons-vue";
+import {
+  SearchOutlined,
+  PlusOutlined,
+  DownloadOutlined,
+  EditOutlined,
+} from "@ant-design/icons-vue";
 import { onMounted, reactive, ref } from "vue";
 import { useColumn } from "./util";
-import { fetchCargos } from "./api";
+import { fetchCargos,downloadPdf } from "./api";
 import { useRouter } from "vue-router";
+import CommonModal from "@/components/CommonModal.vue";
+import ModalForm from "./ModalForm.vue";
 
 const state = reactive({
   searchText: "",
   searchedColumn: "",
   dataSource: [],
+  loading: false,
 });
-
-onMounted(() => {
+function initTable() {
+  state.loading = true;
   fetchCargos().then((data: any) => {
+    state.loading = false;
     if (data) {
       state.dataSource = data.map((s: any) => ({
         ...s,
@@ -20,6 +29,9 @@ onMounted(() => {
       }));
     }
   });
+}
+onMounted(() => {
+  initTable();
 });
 
 const searchInput = ref();
@@ -47,7 +59,39 @@ function navigate(cargoId: string) {
 </script>
 
 <template>
-  <a-table :data-source="state.dataSource" :columns="columns">
+  <div
+    style="
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 480px;
+    "
+    v-if="state.loading"
+  >
+    <a-spin size="large" />
+  </div>
+  <a-table
+    :data-source="state.dataSource"
+    :columns="columns"
+    :style="{ display: state.loading ? 'none' : 'block' }"
+  >
+    <template #title>
+      <div style="text-align: right">
+        <CommonModal title="新規" :width="800">
+          <template #visibleControl="{ setOpen }">
+            <div style="text-align: right">
+              <a-button type="primary" @click="setOpen(true)">
+                <template #icon><plus-outlined /></template>
+                新規
+              </a-button>
+            </div>
+          </template>
+          <template #content="{ setOpen }">
+            <ModalForm :setOpen="setOpen" :initTable="initTable" />
+          </template>
+        </CommonModal>
+      </div>
+    </template>
     <template #headerCell="{ column }">
       <template v-if="column.key === 'invoiceNo'">
         <span style="color: #1890ff">請求書番号</span>
@@ -96,9 +140,21 @@ function navigate(cargoId: string) {
     </template>
     <template #bodyCell="{ text, column, record }">
       <template v-if="column.key === 'actions'">
-        <a-button type="link" @click="navigate(record.cargoId)" block
-          >詳細</a-button
-        >
+        <a-space wrap>
+          <a-button type="link" @click="navigate(record.cargoId)">
+            <template #icon>
+              <EditOutlined />
+            </template>
+          </a-button>
+          <a-button type="link" @click="downloadPdf(record.cargoId)">
+            <template #icon>
+              <DownloadOutlined />
+            </template>
+          </a-button>
+        </a-space>
+      </template>
+      <template v-if="column.key === 'createdAt'">
+        {{ record.createdAt && record.createdAt.substring(0, 10) }}
       </template>
       <span
         v-if="state.searchText && state.searchedColumn === column.dataIndex"

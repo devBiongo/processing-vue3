@@ -27,6 +27,11 @@ const columns = [
     record.invoiceNo?record.transportationCompany.toString().toLowerCase().includes(value.toLowerCase()):false,
   },
   {
+    title: "日時",
+    dataIndex: "createdAt",
+    key: "createdAt",
+  },
+  {
     title: "",
     dataIndex: "actions",
     key: "actions",

@@ -6,6 +6,11 @@ const mapDataToTreeNodes = (data: any, category: string) => {
 };
 export const formatTreeData = (data: any) => [
   {
+    title: "シーパー",
+    key: "shipper",
+    children: mapDataToTreeNodes(data, "shipper"),
+  },
+  {
     title: "货代",
     key: "agency",
     children: mapDataToTreeNodes(data, "agency"),
@@ -25,18 +30,13 @@ export const formatTreeData = (data: any) => [
     key: "customs",
     children: mapDataToTreeNodes(data, "customs"),
   },
-  {
-    title: "保险",
-    key: "insurance",
-    children: mapDataToTreeNodes(data, "insurance"),
-  },
 ];
 
 export const formatSelectItems = (data: any) =>
   [
     ...data.trailer,
     ...data.ship,
-    ...data.insurance,
+    ...data.shipper,
     ...data.customs,
     ...data.agency,
   ].map((s: any) => ({
